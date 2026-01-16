@@ -26,16 +26,26 @@ button,input{
 }
 button.primary{ background:var(--btn); border:none; font-weight:700; }
 button:active{ opacity:.85; }
-input{ width:70px; text-align:center; }
+input[type="number"]{ width:70px; text-align:center; }
+input[type="text"]{ width:140px; }
 .small{ font-size:13px; color:var(--muted); margin:6px 0 0; }
 table{ width:100%; border-collapse:collapse; margin-top:12px; }
 th,td{ padding:10px; border-bottom:1px solid var(--border); }
 td.nameCell{ cursor:pointer; }
-tr.top{ background:var(--red); }
-tr.low{ background:var(--green); }
+tr.top{ background:var(--red); }   /* TOP = RED */
+tr.low{ background:var(--green); } /* LOW = GREEN */
 tr.out{ opacity:.35; }
 .history{ font-size:13px; color:var(--muted); margin-top:10px; line-height:1.4; }
 .pill{ display:inline-block; padding:2px 8px; border:1px solid #666; border-radius:999px; font-size:12px; margin-inline-start:8px; opacity:.9; }
+
+.toggle{
+  display:flex; align-items:center; gap:8px;
+  padding:8px 10px; border:1px solid var(--border); border-radius:12px; background:#151515;
+}
+.status{
+  padding:6px 10px; border:1px solid var(--border); border-radius:999px;
+  background:#151515; font-size:12px; color:var(--muted);
+}
 </style>
 </head>
 
@@ -59,6 +69,7 @@ tr.out{ opacity:.35; }
 </div>
 
 <div class="card" id="gameCard" style="display:none">
+
   <div class="row">
     <button id="btnAddRound">➕ Add Round</button>
     <button id="btnAddPlayer">👤 Add Player</button>
@@ -71,6 +82,21 @@ tr.out{ opacity:.35; }
     <span id="lblKick">Kick-out at</span>
     <input id="target" type="number" min="1" value="100">
     <span class="small" id="lblHint">Players become OUT when total ≥ target.</span>
+  </div>
+
+  <div class="row" style="margin-top:10px">
+    <div class="toggle">
+      <input id="doubleToggle" type="checkbox">
+      <label id="lblDouble" for="doubleToggle" style="cursor:pointer">x2 Double scores</label>
+    </div>
+
+    <div class="toggle">
+      <span id="lblRoom">Room</span>
+      <input id="roomInput" type="text" placeholder="majlis1" autocapitalize="none" autocomplete="off">
+      <button id="btnSetRoom">Set</button>
+    </div>
+
+    <div class="status" id="syncStatus">Local</div>
   </div>
 
   <table id="table">
@@ -87,14 +113,52 @@ tr.out{ opacity:.35; }
 </div>
 
 <script>
-const KEY = "gameScore_v2_local";
+/* =============================
+   Firebase (Realtime Database)
+   ============================= */
+// IMPORTANT: GitHub Pages needs CDN scripts (no "import").
+const FIREBASE_ENABLED = true; // keep true
+const firebaseConfig = {
+  apiKey: "AIzaSyC0twO6-07rT8NNwqVOlLDpwRIakjC122Y",
+  authDomain: "ceck-21719.firebaseapp.com",
+  databaseURL: "https://ceck-21719-default-rtdb.firebaseio.com",
+  projectId: "ceck-21719",
+  storageBucket: "ceck-21719.firebasestorage.app",
+  messagingSenderId: "747335920443",
+  appId: "1:747335920443:web:d65ff3f8ed4b801e3a651e",
+  measurementId: "G-N68P7BHP86"
+};
+
+let firebaseReady = false;
+let firebaseDb = null;
+
+/* =============================
+   App State
+   ============================= */
+const KEY_LOCAL = "gameScore_v3_local";
+const KEY_ROOM  = "gameScore_room";
+const KEY_CID   = "gameScore_clientId";
+
+let clientId = localStorage.getItem(KEY_CID);
+if(!clientId){
+  clientId = Math.random().toString(36).slice(2) + Date.now().toString(36);
+  localStorage.setItem(KEY_CID, clientId);
+}
+
+let room = localStorage.getItem(KEY_ROOM) || "";
+let isApplyingRemote = false;
+let lastWriteTs = 0;
+let lastAppliedRemoteTs = 0;
+let roomListenerRef = null;
+
 let state = {
   lang: "ar",
   names: [],
   totals: [],
   out: [],
   history: [],
-  target: 100
+  target: 100,
+  double: false
 };
 
 const I18N = {
@@ -119,7 +183,13 @@ const I18N = {
     round: "جولة",
     confirmReset: "تصفير كل النقاط وإرجاع الجميع IN؟",
     confirmNew: "بدء لعبة جديدة؟ (سيتم مسح الحالي)",
-    maxPlayers: "الحد الأقصى 10 لاعبين."
+    maxPlayers: "الحد الأقصى 10 لاعبين.",
+    double: "x2 مضاعفة النقاط",
+    room: "الغرفة",
+    set: "تعيين",
+    local: "محلي",
+    live: "مباشر",
+    firebaseFail: "⚠️ تعذر تحميل Firebase — التطبيق يعمل محليًا."
   },
   en: {
     title: "🎮 Game Score",
@@ -142,27 +212,24 @@ const I18N = {
     round: "Round",
     confirmReset: "Reset all totals and set everyone IN?",
     confirmNew: "Start a new game? (clears current)",
-    maxPlayers: "Max players is 10."
+    maxPlayers: "Max players is 10.",
+    double: "x2 Double scores",
+    room: "Room",
+    set: "Set",
+    local: "Local",
+    live: "Live",
+    firebaseFail: "⚠️ Firebase failed to load — app runs locally."
   }
 };
 
 function t(k){ return I18N[state.lang][k] || k; }
-
-function save(){
-  state.target = Math.max(1, Math.floor(+target.value || 100));
-  localStorage.setItem(KEY, JSON.stringify(state));
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, m => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
 }
 
-function load(){
-  try{
-    const raw = localStorage.getItem(KEY);
-    if(!raw) return;
-    const s = JSON.parse(raw);
-    if(!s) return;
-    state = { ...state, ...s };
-  }catch{}
-}
-
+/* =============================
+   UI Text / Language
+   ============================= */
 function applyLang(){
   document.documentElement.lang = state.lang;
   document.documentElement.dir  = (state.lang === "ar") ? "rtl" : "ltr";
@@ -183,8 +250,147 @@ function applyLang(){
   lblHint.textContent   = t("hint");
   thPlayer.textContent  = t("thPlayer");
   thTotal.textContent   = t("thTotal");
+
+  lblDouble.textContent = t("double");
+  lblRoom.textContent   = t("room");
+  btnSetRoom.textContent= t("set");
+
+  setSyncBadge();
 }
 
+function setSyncBadge(msg){
+  if(!room || !firebaseReady){
+    syncStatus.textContent = msg || t("local");
+  }else{
+    syncStatus.textContent = msg || t("live") + `: ${room}`;
+  }
+}
+
+/* =============================
+   Local Save/Load
+   ============================= */
+function saveLocal(){
+  state.target = Math.max(1, Math.floor(+target.value || 100));
+  state.double = !!doubleToggle.checked;
+  localStorage.setItem(KEY_LOCAL, JSON.stringify(state));
+}
+
+function loadLocal(){
+  try{
+    const raw = localStorage.getItem(KEY_LOCAL);
+    if(!raw) return;
+    const s = JSON.parse(raw);
+    if(!s) return;
+    state = { ...state, ...s };
+  }catch{}
+}
+
+/* =============================
+   Firebase helpers (CDN)
+   ============================= */
+function loadScript(src){
+  return new Promise((resolve,reject)=>{
+    const s = document.createElement("script");
+    s.src = src;
+    s.async = true;
+    s.onload = resolve;
+    s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+async function ensureFirebase(){
+  if(!FIREBASE_ENABLED) return false;
+  if(firebaseReady && firebaseDb) return true;
+
+  try{
+    await loadScript("https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js");
+    await loadScript("https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js");
+
+    // init (compat)
+    if(!firebase.apps || firebase.apps.length === 0){
+      firebase.initializeApp(firebaseConfig);
+    }
+    firebaseDb = firebase.database();
+    firebaseReady = true;
+    return true;
+  }catch(e){
+    firebaseReady = false;
+    firebaseDb = null;
+    setSyncBadge(t("local"));
+    alert(t("firebaseFail"));
+    return false;
+  }
+}
+
+function roomStatePath(r){ return `rooms/${String(r).trim().toLowerCase()}/state`; }
+
+function writeRemote(){
+  if(isApplyingRemote) return;
+  if(!firebaseReady || !firebaseDb || !room) return;
+
+  const payload = {
+    ...state,
+    target: Math.max(1, Math.floor(+target.value || state.target || 100)),
+    double: !!doubleToggle.checked,
+    _ts: Date.now(),
+    _by: clientId
+  };
+
+  lastWriteTs = payload._ts;
+
+  firebaseDb.ref(roomStatePath(room)).set(payload).catch(()=>{});
+  setSyncBadge(t("live") + `: ${room}`);
+}
+
+function startRoomListener(){
+  if(!firebaseReady || !firebaseDb || !room) return;
+
+  // remove old
+  if(roomListenerRef){
+    roomListenerRef.off();
+    roomListenerRef = null;
+  }
+
+  const ref = firebaseDb.ref(roomStatePath(room));
+  roomListenerRef = ref;
+
+  ref.on("value", snap=>{
+    const remote = snap.val();
+    if(!remote) return;
+
+    // ignore our own latest write
+    if(remote._by === clientId && remote._ts && remote._ts <= lastWriteTs) return;
+
+    // ignore older remote updates
+    if(remote._ts && remote._ts <= lastAppliedRemoteTs) return;
+
+    lastAppliedRemoteTs = remote._ts || Date.now();
+
+    // apply
+    isApplyingRemote = true;
+    const { _ts, _by, ...clean } = remote;
+
+    // keep language local preference if remote missing
+    state = { ...state, ...clean };
+
+    // sync UI controls
+    target.value = state.target || 100;
+    doubleToggle.checked = !!state.double;
+
+    saveLocal();
+    render();
+    isApplyingRemote = false;
+
+    setSyncBadge(t("live") + `: ${room}`);
+  });
+
+  setSyncBadge(t("live") + `: ${room}`);
+}
+
+/* =============================
+   Game logic
+   ============================= */
 function showSetup(){
   setupCard.style.display = "";
   gameCard.style.display  = "none";
@@ -195,6 +401,8 @@ function showGame(){
   setupCard.style.display = "none";
   gameCard.style.display  = "";
   target.value = state.target || 100;
+  doubleToggle.checked = !!state.double;
+  roomInput.value = room || "";
   applyLang();
   render();
 }
@@ -205,7 +413,8 @@ function newGame(n){
   state.out = Array(n).fill(false);
   state.history = [];
   state.target = Math.max(1, Math.floor(+target.value || state.target || 100));
-  save();
+  saveLocal();
+  writeRemote();
 }
 
 function computeTopLow(){
@@ -219,6 +428,13 @@ function computeTopLow(){
   }
   const allEqual = inIdx.every(i => state.totals[i] === state.totals[inIdx[0]]);
   return { top, low, allEqual };
+}
+
+function render(){
+  const tbody = document.querySelector("#table tbody");
+  tbody.innerHTML = "";
+
+  const {top, low, allEqual}s = computeTopLow(); // typo guard? we'll do below properly
 }
 
 function render(){
@@ -250,17 +466,14 @@ function render(){
   history.innerHTML = state.history.slice(0,12).map(h=>"• "+escapeHtml(h)).join("<br>");
 }
 
-function escapeHtml(s){
-  return String(s).replace(/[&<>"']/g, m => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
-}
-
 function editName(i){
   const val = prompt(t("editName"), state.names[i]);
   if(val === null) return;
   const name = val.trim();
   if(name) state.names[i] = name;
-  save();
+  saveLocal();
   render();
+  writeRemote();
 }
 
 function addPlayer(){
@@ -271,27 +484,39 @@ function addPlayer(){
   state.names.push(name);
   state.totals.push(0);
   state.out.push(false);
-  save();
+  saveLocal();
   render();
+  writeRemote();
 }
 
 function addRound(){
   const inIdx = state.names.map((_,i)=>i).filter(i=>!state.out[i]);
   if(inIdx.length === 0) return;
 
+  state.target = Math.max(1, Math.floor(+target.value || 100));
+  state.double = !!doubleToggle.checked;
+
   const changes = [];
   for(const i of inIdx){
     const v = prompt(`${t("pointsFor")} ${state.names[i]}`, "0");
     if(v === null) return;
-    const pts = Number(v) || 0;
+
+    let pts = Number(v);
+    if(!Number.isFinite(pts)) pts = 0;
+
+    // ✅ Double option
+    if(state.double) pts = pts * 2;
+
     state.totals[i] += pts;
     changes.push(`${state.names[i]} +${pts}`);
+
     if(state.totals[i] >= state.target) state.out[i] = true;
   }
 
   state.history.unshift(`${t("round")}: ${changes.join(", ")}`);
-  save();
+  saveLocal();
   render();
+  writeRemote();
 }
 
 function resetTotals(){
@@ -299,15 +524,16 @@ function resetTotals(){
   state.totals = state.totals.map(()=>0);
   state.out = state.out.map(()=>false);
   state.history = [];
-  save();
+  saveLocal();
   render();
+  writeRemote();
 }
 
 function startFromSetup(){
   const n = Math.max(2, Math.min(10, Math.floor(+playersCount.value || 2)));
   newGame(n);
 
-  // optional: rename players
+  // optional: rename players quickly
   for(let i=0;i<state.names.length;i++){
     const v = prompt(`Name for ${state.names[i]}`, state.names[i]);
     if(v === null) break;
@@ -315,8 +541,9 @@ function startFromSetup(){
     if(name) state.names[i] = name;
   }
 
-  save();
+  saveLocal();
   showGame();
+  writeRemote();
 }
 
 function newGameButton(){
@@ -324,6 +551,41 @@ function newGameButton(){
   showSetup();
 }
 
+/* =============================
+   Room / Live Share
+   ============================= */
+async function setRoom(){
+  const r = (roomInput.value || "").trim();
+  if(!r){
+    room = "";
+    localStorage.removeItem(KEY_ROOM);
+    setSyncBadge(t("local"));
+    if(roomListenerRef){ roomListenerRef.off(); roomListenerRef=null; }
+    return;
+  }
+
+  room = r.toLowerCase();
+  localStorage.setItem(KEY_ROOM, room);
+
+  const ok = await ensureFirebase();
+  if(!ok){
+    setSyncBadge(t("local"));
+    return;
+  }
+
+  startRoomListener();
+
+  // if room is empty on server, publish current local state as initial
+  firebaseDb.ref(roomStatePath(room)).get().then(snap=>{
+    if(!snap.exists()){
+      writeRemote();
+    }
+  }).catch(()=>{});
+}
+
+/* =============================
+   Wire buttons
+   ============================= */
 btnStart.onclick = startFromSetup;
 btnAddRound.onclick = addRound;
 btnAddPlayer.onclick = addPlayer;
@@ -331,22 +593,49 @@ btnReset.onclick = resetTotals;
 btnNewGame.onclick = newGameButton;
 btnGoSetup.onclick = showSetup;
 
-btnAR.onclick = ()=>{ state.lang="ar"; save(); applyLang(); render(); };
-btnEN.onclick = ()=>{ state.lang="en"; save(); applyLang(); render(); };
+btnAR.onclick = ()=>{ state.lang="ar"; saveLocal(); applyLang(); render(); };
+btnEN.onclick = ()=>{ state.lang="en"; saveLocal(); applyLang(); render(); };
 
 target.onchange = ()=>{
   state.target = Math.max(1, Math.floor(+target.value || 100));
   // re-evaluate OUT based on new target
   state.out = state.totals.map(x => x >= state.target);
-  save();
+  saveLocal();
   render();
+  writeRemote();
 };
 
-// boot
-load();
+doubleToggle.onchange = ()=>{
+  state.double = !!doubleToggle.checked;
+  saveLocal();
+  writeRemote();
+};
+
+btnSetRoom.onclick = setRoom;
+
+/* =============================
+   Boot
+   ============================= */
+loadLocal();
 applyLang();
+
 if(state.names && state.names.length >= 2) showGame();
 else showSetup();
+
+roomInput.value = room || "";
+if(room){
+  // attempt live share automatically
+  ensureFirebase().then(ok=>{
+    if(ok){
+      startRoomListener();
+      setSyncBadge(t("live")+`: ${room}`);
+    }else{
+      setSyncBadge(t("local"));
+    }
+  });
+}else{
+  setSyncBadge(t("local"));
+}
 </script>
 </body>
 </html>
