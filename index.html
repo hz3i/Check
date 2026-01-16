@@ -777,7 +777,14 @@
      ✅ Everyone else is Viewer (cannot control)
   */
   const spBoot = new URLSearchParams(location.search);
-  const IS_HOST = spBoot.get("host") === "1";
+  const hostParam = spBoot.get("host") === "1";
+const savedHost = localStorage.getItem("CHECK_HOST") === "1";
+
+// First time only: if you open with ?host=1 once, it remembers this phone as host
+if (hostParam) localStorage.setItem("CHECK_HOST","1");
+
+const IS_HOST = hostParam || savedHost;
+const IS_VIEWER = !IS_HOST;
   const IS_VIEWER = !IS_HOST;
 
   document.body.classList.toggle("viewer", IS_VIEWER);
