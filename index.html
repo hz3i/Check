@@ -1,374 +1,458 @@
 <!doctype html>
 <html lang="en" dir="ltr">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>CHECK</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>CHECK</title>
 
-<!-- iOS + PWA icon -->
-<link rel="icon" type="image/PNG" href="icon.PNG">
-<link rel="apple-touch-icon" href="icon.PNG">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <!-- PWA / iOS -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#07070A">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-<style>
-:root{
-  color-scheme: dark;
-  --bg: #07070A;
-  --card: rgba(255,255,255,.06);
-  --border: rgba(255,255,255,.12);
-  --text: #FFFFFF;
-  --muted: rgba(255,255,255,.72);
-  --muted2: rgba(255,255,255,.55);
+  <!-- Icons (make sure these files exist on your host) -->
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon-180.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
 
-  --primary: #4DA3FF;
-  --primary2:#2C7DFF;
-  --good: #32D583;
+  <style>
+    :root{
+      color-scheme: dark;
+      --bg: #07070A;
+      --card: rgba(255,255,255,.06);
+      --border: rgba(255,255,255,.12);
+      --text: #FFFFFF;
+      --muted: rgba(255,255,255,.72);
+      --muted2: rgba(255,255,255,.55);
 
-  --topRed: #E5484D;     /* TOP */
-  --lowGreen: #2ECC71;   /* LOW */
+      --primary: #4DA3FF;
+      --primary2:#2C7DFF;
+      --good: #32D583;
 
-  --shadow: 0 14px 40px rgba(0,0,0,.45);
-  --radius: 18px;
-  --radius2: 14px;
-}
+      --topRed: #E5484D;
+      --lowGreen: #2ECC71;
 
-*{ box-sizing:border-box; }
-html,body{ height:100%; }
-body{
-  margin:0;
-  font-family: ui-rounded, system-ui, -apple-system, "SF Pro Rounded", "SF Pro Display";
-  background:
-    radial-gradient(1200px 700px at 20% 0%, rgba(77,163,255,.22), transparent 55%),
-    radial-gradient(900px 600px at 90% 15%, rgba(50,213,131,.18), transparent 55%),
-    radial-gradient(900px 600px at 50% 100%, rgba(255,209,102,.12), transparent 55%),
-    var(--bg);
-  color: var(--text);
-}
+      --shadow: 0 14px 40px rgba(0,0,0,.45);
+      --radius: 18px;
+      --radius2: 14px;
+    }
 
-.container{
-  max-width: 740px;
-  margin: 0 auto;
-  padding: 14px 14px 28px;
-}
+    *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: ui-rounded, system-ui, -apple-system, "SF Pro Rounded", "SF Pro Display";
+      background:
+        radial-gradient(1200px 700px at 20% 0%, rgba(77,163,255,.22), transparent 55%),
+        radial-gradient(900px 600px at 90% 15%, rgba(50,213,131,.18), transparent 55%),
+        radial-gradient(900px 600px at 50% 100%, rgba(255,209,102,.12), transparent 55%),
+        var(--bg);
+      color: var(--text);
+    }
 
-.header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:12px;
-  padding: 10px 4px 2px;
-}
+    .container{
+      max-width: 740px;
+      margin: 0 auto;
+      padding: 14px 14px 28px;
+    }
 
-.brand{
-  display:flex;
-  align-items:center;
-  gap:10px;
-}
-.logo{
-  width:42px;height:42px;border-radius:14px;
-  background: linear-gradient(135deg, rgba(77,163,255,.95), rgba(50,213,131,.9));
-  box-shadow: var(--shadow);
-  display:grid; place-items:center;
-  font-weight:1100;
-  overflow:hidden;
-}
-.logo img{ width:100%; height:100%; object-fit:cover; }
-.brandText{
-  display:flex; flex-direction:column; line-height:1.05;
-}
-.brandText .title{
-  font-size:18px; font-weight:1100; letter-spacing:1px;
-}
-.brandText .sub{
-  font-size:12px; color:var(--muted2);
-}
+    .header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      padding: 10px 4px 2px;
+    }
 
-.pills{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; align-items:center; }
-.pill{
-  padding: 8px 10px;
-  border: 1px solid var(--border);
-  background: rgba(255,255,255,.05);
-  border-radius: 999px;
-  font-size: 12px;
-  color: var(--muted);
-  backdrop-filter: blur(8px);
-}
-.pill strong{ color: var(--text); }
+    .brand{ display:flex; align-items:center; gap:10px; }
+    .logo{
+      width:42px;height:42px;border-radius:14px;
+      background: linear-gradient(135deg, rgba(77,163,255,.95), rgba(50,213,131,.9));
+      box-shadow: var(--shadow);
+      display:grid; place-items:center;
+      font-weight:1100;
+      overflow:hidden;
+    }
+    .logo img{ width:100%; height:100%; object-fit:cover; }
+    .brandText{ display:flex; flex-direction:column; line-height:1.05; }
+    .brandText .title{ font-size:18px; font-weight:1100; letter-spacing:1px; }
+    .brandText .sub{ font-size:12px; color:var(--muted2); }
 
-.card{
-  border:1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--card);
-  box-shadow: var(--shadow);
-  padding: 14px;
-  margin-top: 12px;
-  backdrop-filter: blur(10px);
-}
+    .pills{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; align-items:center; }
+    .pill{
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.05);
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--muted);
+      backdrop-filter: blur(8px);
+    }
+    .pill strong{ color: var(--text); }
 
-.row{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  align-items:center;
-}
+    .card{
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--card);
+      box-shadow: var(--shadow);
+      padding: 14px;
+      margin-top: 12px;
+      backdrop-filter: blur(10px);
+    }
 
-label.small{
-  font-size:12px;
-  color: var(--muted2);
-}
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
 
-input, button{
-  border-radius: var(--radius2);
-  border: 1px solid var(--border);
-  background: rgba(255,255,255,.06);
-  color: var(--text);
-  padding: 12px 14px;
-  font-size: 15px;
-  outline:none;
-}
+    label.small{ font-size:12px; color: var(--muted2); }
 
-input[type="number"]{ width:92px; text-align:center; }
-input[type="text"]{ width:180px; }
+    input, button{
+      border-radius: var(--radius2);
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      padding: 12px 14px;
+      font-size: 15px;
+      outline:none;
+    }
 
-button{
-  cursor:pointer;
-  font-weight:900;
-  letter-spacing:.2px;
-  box-shadow: 0 10px 24px rgba(0,0,0,.18);
-}
-button:active{ transform: translateY(1px); opacity:.92; }
+    input[type="number"]{ width:92px; text-align:center; }
+    input[type="text"]{ width:180px; }
 
-button.primary{
-  border:none;
-  background: linear-gradient(135deg, var(--primary), var(--primary2));
-}
-button.good{
-  border:none;
-  background: linear-gradient(135deg, rgba(50,213,131,.95), rgba(30,170,120,.95));
-}
-button.bad{
-  border:none;
-  background: linear-gradient(135deg, rgba(229,72,77,.95), rgba(170,40,55,.95));
-}
-button.ghost{
-  background: rgba(255,255,255,.05);
-}
+    button{
+      cursor:pointer;
+      font-weight:900;
+      letter-spacing:.2px;
+      box-shadow: 0 10px 24px rgba(0,0,0,.18);
+      user-select:none;
+      touch-action: manipulation;
+    }
+    button:active{ transform: translateY(1px); opacity:.92; }
 
-.helper{
-  font-size:12px;
-  color: var(--muted2);
-  margin-top: 8px;
-}
+    button.primary{ border:none; background: linear-gradient(135deg, var(--primary), var(--primary2)); }
+    button.good{ border:none; background: linear-gradient(135deg, rgba(50,213,131,.95), rgba(30,170,120,.95)); }
+    button.bad{ border:none; background: linear-gradient(135deg, rgba(229,72,77,.95), rgba(170,40,55,.95)); }
+    button.ghost{ background: rgba(255,255,255,.05); }
 
-table{
-  width:100%;
-  border-collapse: separate;
-  border-spacing: 0 10px;
-  margin-top: 10px;
-}
-thead th{
-  text-align:start;
-  font-size:12px;
-  color: var(--muted2);
-  font-weight:1000;
-  padding: 0 10px;
-}
-tbody tr{
-  background: rgba(255,255,255,.06);
-  border: 1px solid var(--border);
-  overflow:hidden;
-}
-tbody tr td{
-  padding: 12px 12px;
-}
-tbody tr td:first-child{
-  border-top-left-radius: 14px;
-  border-bottom-left-radius: 14px;
-}
-tbody tr td:last-child{
-  border-top-right-radius: 14px;
-  border-bottom-right-radius: 14px;
-  text-align:end;
-  font-weight:1100;
-}
-tbody tr.top{ background: rgba(229,72,77,.25); border:1px solid rgba(229,72,77,.35); } /* TOP red */
-tbody tr.low{ background: rgba(46,204,113,.22); border:1px solid rgba(46,204,113,.32); } /* LOW green */
-tbody tr.out{ opacity:.35; }
+    .helper{ font-size:12px; color: var(--muted2); margin-top: 8px; }
 
-.nameCell{ cursor:pointer; }
-.tag{
-  display:inline-block;
-  padding: 2px 8px;
-  margin-inline-start: 8px;
-  border-radius: 999px;
-  font-size: 11px;
-  border: 1px solid var(--border);
-  color: var(--muted);
-  background: rgba(0,0,0,.15);
-}
+    table{
+      width:100%;
+      border-collapse: separate;
+      border-spacing: 0 10px;
+      margin-top: 10px;
+    }
+    thead th{
+      text-align:start;
+      font-size:12px;
+      color: var(--muted2);
+      font-weight:1000;
+      padding: 0 10px;
+    }
+    tbody tr{
+      background: rgba(255,255,255,.06);
+      border: 1px solid var(--border);
+      overflow:hidden;
+      transition: transform .18s ease, background .18s ease, border-color .18s ease;
+    }
+    tbody tr td{ padding: 12px 12px; }
+    tbody tr td:first-child{ border-top-left-radius: 14px; border-bottom-left-radius: 14px; }
+    tbody tr td:last-child{ border-top-right-radius: 14px; border-bottom-right-radius: 14px; text-align:end; font-weight:1100; }
+    tbody tr.top{ background: rgba(229,72,77,.25); border:1px solid rgba(229,72,77,.35); }
+    tbody tr.low{ background: rgba(46,204,113,.22); border:1px solid rgba(46,204,113,.32); }
+    tbody tr.out{ opacity:.35; }
 
-.history{
-  margin-top: 12px;
-  padding: 12px;
-  border-radius: 14px;
-  border: 1px solid var(--border);
-  background: rgba(0,0,0,.18);
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.45;
-}
+    .nameCell{ cursor:pointer; }
+    .tag{
+      display:inline-block;
+      padding: 2px 8px;
+      margin-inline-start: 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      background: rgba(0,0,0,.15);
+    }
 
-hr.sep{
-  border:0;
-  border-top:1px solid var(--border);
-  margin: 12px 0;
-}
+    hr.sep{ border:0; border-top:1px solid var(--border); margin: 12px 0; }
 
-/* Splash */
-#splash{
-  display:none;
-  position:fixed;
-  inset:0;
-  z-index:9998;
-  background: rgba(0,0,0,.55);
-  backdrop-filter: blur(10px);
-}
-#splash .box{
-  max-width: 520px;
-  margin: 18vh auto;
-  padding: 18px;
-  border-radius: 22px;
-  border: 1px solid var(--border);
-  background: rgba(255,255,255,.08);
-  box-shadow: var(--shadow);
-  text-align:center;
-}
-#splash .big{
-  font-size: 52px;
-  font-weight: 1200;
-  letter-spacing: 2px;
-  background: linear-gradient(135deg, rgba(77,163,255,.95), rgba(50,213,131,.95));
-  -webkit-background-clip:text;
-  background-clip:text;
-  color: transparent;
-}
-#splash .tiny{
-  margin-top: 6px;
-  color: var(--muted);
-  font-size: 13px;
-}
+    /* Splash */
+    #splash{
+      display:none;
+      position:fixed;
+      inset:0;
+      z-index:9998;
+      background: rgba(0,0,0,.55);
+      backdrop-filter: blur(10px);
+    }
+    #splash .box{
+      max-width: 520px;
+      margin: 18vh auto;
+      padding: 18px;
+      border-radius: 22px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.08);
+      box-shadow: var(--shadow);
+      text-align:center;
+    }
+    #splash .big{
+      font-size: 52px;
+      font-weight: 1200;
+      letter-spacing: 2px;
+      background: linear-gradient(135deg, rgba(77,163,255,.95), rgba(50,213,131,.95));
+      -webkit-background-clip:text;
+      background-clip:text;
+      color: transparent;
+    }
+    #splash .tiny{ margin-top: 6px; color: var(--muted); font-size: 13px; }
 
-/* Score Modal (Keypad) */
-#scoreModal{ display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,.70); backdrop-filter: blur(10px); }
-#scoreModal .panel{
-  max-width: 560px;
-  margin: 8vh auto;
-  padding: 16px;
-  border-radius: 22px;
-  border: 1px solid var(--border);
-  background: rgba(255,255,255,.08);
-  box-shadow: var(--shadow);
-}
-#scoreModal .topline{ display:flex; justify-content:space-between; align-items:center; gap:10px; }
-#scoreModal .pname{ font-size: 18px; font-weight: 1200; }
-#scoreModal .pinfo{ font-size: 12px; color: var(--muted2); margin-top:4px; }
-#scoreModal .roundBadge{
-  font-size: 12px; color: var(--muted);
-  border: 1px solid var(--border);
-  padding: 8px 10px;
-  border-radius: 999px;
-  background: rgba(0,0,0,.18);
-}
-#scoreModal .scoreRow{ margin-top: 14px; display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
-#scoreModal #mPoints{
-  flex:1;
-  font-size: 38px;
-  font-weight: 1200;
-  text-align:center;
-  background: rgba(0,0,0,.25);
-}
-#scoreModal #mX2{
-  min-width: 120px;
-  font-weight: 1100;
-}
-#scoreModal #mX2.on{
-  border:none;
-  background: linear-gradient(135deg, rgba(50,213,131,.95), rgba(30,170,120,.95));
-}
-#scoreModal .kpGrid{
-  margin-top: 14px;
-  display:grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-#scoreModal .kp{
-  padding: 14px 12px;
-  border-radius: 16px;
-  border: 1px solid var(--border);
-  background: rgba(0,0,0,.18);
-  font-size: 22px;
-  font-weight: 1200;
-}
-#scoreModal .kp:active{ transform: translateY(1px); opacity:.9; }
-#scoreModal .actions{ margin-top: 14px; display:flex; gap:10px; flex-wrap:wrap; }
-#scoreModal .actions button{ flex: 1; }
+    /* Score Modal (Keypad) */
+    #scoreModal{ display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,.70); backdrop-filter: blur(10px); }
+    #scoreModal .panel{
+      max-width: 560px;
+      margin: 8vh auto;
+      padding: 16px;
+      border-radius: 22px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.08);
+      box-shadow: var(--shadow);
+    }
+    #scoreModal .topline{ display:flex; justify-content:space-between; align-items:center; gap:10px; }
+    #scoreModal .pname{ font-size: 18px; font-weight: 1200; }
+    #scoreModal .pinfo{ font-size: 12px; color: var(--muted2); margin-top:4px; }
+    #scoreModal .roundBadge{
+      font-size: 12px; color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(0,0,0,.18);
+    }
+    #scoreModal .scoreRow{ margin-top: 14px; display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    #scoreModal #mPoints{
+      flex:1;
+      font-size: 38px;
+      font-weight: 1200;
+      text-align:center;
+      background: rgba(0,0,0,.25);
+    }
+    #scoreModal #mX2{ min-width: 120px; font-weight: 1100; }
+    #scoreModal #mX2.on{
+      border:none;
+      background: linear-gradient(135deg, rgba(50,213,131,.95), rgba(30,170,120,.95));
+    }
+    #scoreModal .kpGrid{
+      margin-top: 14px;
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    #scoreModal .kp{
+      padding: 14px 12px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,.18);
+      font-size: 22px;
+      font-weight: 1200;
+    }
+    #scoreModal .kp:active{ transform: translateY(1px); opacity:.9; }
+    #scoreModal .actions{ margin-top: 14px; display:flex; gap:10px; flex-wrap:wrap; }
+    #scoreModal .actions button{ flex: 1; }
 
-/* Name Modal (Playful) */
-#nameModal{
-  display:none;
-  position:fixed;
-  inset:0;
-  z-index:10000;
-  background:rgba(0,0,0,.70);
-  backdrop-filter: blur(10px);
-}
-#nameModal .panel{
-  max-width:520px;
-  margin:18vh auto;
-  padding:16px;
-  border-radius:22px;
-  border:1px solid var(--border);
-  background:rgba(255,255,255,.08);
-  box-shadow: var(--shadow);
-}
-#nameModal .topline{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
-#nameModal .nmTitle{ font-size:18px; font-weight:1200; }
-#nameModal .nmSub{ font-size:12px; color:var(--muted2); margin-top:4px; }
-#nameModal .nmInput{
-  width:100%;
-  font-size:18px;
-  font-weight:1100;
-  padding:14px;
-  border-radius:16px;
-  background:rgba(0,0,0,.25);
-}
-#nameModal .actions{ margin-top:14px; display:flex; gap:10px; flex-wrap:wrap; }
-#nameModal .actions button{ flex:1; }
+    /* Name Modal (Playful) */
+    #nameModal{
+      display:none;
+      position:fixed;
+      inset:0;
+      z-index:10000;
+      background:rgba(0,0,0,.70);
+      backdrop-filter: blur(10px);
+    }
+    #nameModal .panel{
+      max-width:520px;
+      margin:18vh auto;
+      padding:16px;
+      border-radius:22px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.08);
+      box-shadow: var(--shadow);
+    }
+    #nameModal .topline{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    #nameModal .nmTitle{ font-size:18px; font-weight:1200; }
+    #nameModal .nmSub{ font-size:12px; color:var(--muted2); margin-top:4px; }
+    #nameModal .nmInput{
+      width:100%;
+      font-size:18px;
+      font-weight:1100;
+      padding:14px;
+      border-radius:16px;
+      background:rgba(0,0,0,.25);
+    }
+    #nameModal .actions{ margin-top:14px; display:flex; gap:10px; flex-wrap:wrap; }
+    #nameModal .actions button{ flex:1; }
 
-/* Viewer-only lock overlay */
-#viewerLock{
-  display:none;
-  position:fixed;
-  inset:0;
-  z-index:10001;
-  pointer-events:none;
-}
-#viewerLock .toast{
-  pointer-events:none;
-  max-width: 740px;
-  margin: 10px auto 0;
-  padding: 10px 14px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  background: rgba(0,0,0,.35);
-  color: var(--muted);
-  backdrop-filter: blur(10px);
-  text-align:center;
-  font-size: 12px;
-  font-weight: 900;
-}
-</style>
+    /* Viewer-only lock toast */
+    #viewerLock{
+      display:none;
+      position:fixed;
+      inset:0;
+      z-index:10001;
+      pointer-events:none;
+    }
+    #viewerLock .toast{
+      pointer-events:none;
+      max-width: 740px;
+      margin: 10px auto 0;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,.35);
+      color: var(--muted);
+      backdrop-filter: blur(10px);
+      text-align:center;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    /* Fancy leader cards */
+    #leaderRow{ margin-top:10px; }
+    .leaderCard{
+      flex:1;
+      min-width: 240px;
+      padding: 14px 14px 12px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      box-shadow: 0 14px 40px rgba(0,0,0,.35);
+      backdrop-filter: blur(10px);
+      position: relative;
+      overflow: hidden;
+    }
+    .leaderCard:before{
+      content:"";
+      position:absolute;
+      inset:-40px;
+      background: radial-gradient(circle at 20% 20%, rgba(255,255,255,.16), transparent 45%);
+      transform: rotate(12deg);
+      pointer-events:none;
+    }
+    .topCard{ border-color: rgba(229,72,77,.35); }
+    .lowCard{ border-color: rgba(46,204,113,.35); }
+
+    .leaderTitle{
+      font-size: 12px;
+      letter-spacing: 2px;
+      font-weight: 1100;
+      color: rgba(255,255,255,.75);
+    }
+    .leaderName{
+      margin-top: 6px;
+      font-size: 22px;
+      font-weight: 1200;
+      overflow:hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .leaderScore{
+      margin-top: 2px;
+      font-size: 34px;
+      font-weight: 1200;
+      opacity: .95;
+    }
+
+    @keyframes pop {
+      0% { transform: scale(.98); opacity:.8; }
+      60%{ transform: scale(1.02); opacity:1; }
+      100%{ transform: scale(1); }
+    }
+    .pop { animation: pop .22s ease-out; }
+
+    @keyframes pulseGlowRed {
+      0%{ box-shadow: 0 0 0 rgba(229,72,77,0); }
+      50%{ box-shadow: 0 0 24px rgba(229,72,77,.25); }
+      100%{ box-shadow: 0 0 0 rgba(229,72,77,0); }
+    }
+    @keyframes pulseGlowGreen {
+      0%{ box-shadow: 0 0 0 rgba(46,204,113,0); }
+      50%{ box-shadow: 0 0 24px rgba(46,204,113,.22); }
+      100%{ box-shadow: 0 0 0 rgba(46,204,113,0); }
+    }
+    .glowTop { animation: pulseGlowRed .35s ease-out; }
+    .glowLow { animation: pulseGlowGreen .35s ease-out; }
+
+    /* History drawer */
+    #historyDrawer{
+      display:none;
+      position:fixed;
+      inset:0;
+      z-index:10004;
+      background: rgba(0,0,0,.55);
+      backdrop-filter: blur(10px);
+    }
+    #historyDrawer .sheet{
+      max-width: 740px;
+      margin: 10vh auto 0;
+      border-radius: 22px 22px 0 0;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.08);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    #historyDrawer .sheetTop{
+      display:flex; justify-content:space-between; align-items:center;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    #historyDrawer .sheetTitle{ font-weight:1200; }
+    #historyDrawer .sheetBody{
+      max-height: 60vh;
+      overflow:auto;
+      padding: 12px 14px 18px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    #historyList .item{
+      padding: 10px 10px;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,.18);
+      border-radius: 14px;
+      margin-top: 10px;
+    }
+
+    /* CHECK banner + confetti canvas */
+    #checkBanner{
+      display:none;
+      position:fixed;
+      inset:0;
+      z-index:10002;
+      pointer-events:none;
+    }
+    #confetti{
+      display:none;
+      position:fixed;
+      inset:0;
+      z-index:10003;
+      pointer-events:none;
+    }
+
+    /* Viewer TV mode */
+    body.viewer #setupCard,
+    body.viewer #hostControls,
+    body.viewer #hostSettings,
+    body.viewer #hostSep,
+    body.viewer #leaderRow,
+    body.viewer #historyDrawer,
+    body.viewer #scoreModal,
+    body.viewer #nameModal { display:none !important; }
+
+    body.viewer table{ font-size: 22px; }
+    body.viewer tbody tr td{ padding: 18px 16px; }
+    body.viewer .container{ max-width: 980px; }
+  </style>
 </head>
 
 <body>
@@ -377,8 +461,7 @@ hr.sep{
   <div class="header">
     <div class="brand">
       <div class="logo">
-        <!-- App logo in header -->
-        <img src="icon.PNG" alt="CHECK">
+        <img src="icons/icon-192.png" alt="CHECK">
       </div>
       <div class="brandText">
         <div class="title">CHECK</div>
@@ -387,13 +470,13 @@ hr.sep{
     </div>
 
     <div class="pills">
-      <div class="pill" id="pillRole">Role: <strong>Host</strong></div>
+      <div class="pill" id="pillRole">Role: <strong>Viewer</strong></div>
       <div class="pill" id="pillMode"><strong>Local</strong></div>
       <div class="pill" id="pillRoom">Room: <strong>—</strong></div>
     </div>
   </div>
 
-  <!-- Setup (HOST only; hidden for viewers) -->
+  <!-- Setup (HOST only) -->
   <div class="card" id="setupCard">
     <div class="row">
       <div style="flex:1; min-width:200px">
@@ -407,23 +490,29 @@ hr.sep{
 
     <div class="row">
       <label class="small" id="lblLang">Language</label>
-      <button class="ghost" id="btnAR">AR</button>
-      <button class="ghost" id="btnEN">EN</button>
+      <button class="ghost" id="btnAR" type="button">AR</button>
+      <button class="ghost" id="btnEN" type="button">EN</button>
     </div>
 
     <div class="helper" id="tip">
       Auto-save is on. Set a Room to play live with friends.
+    </div>
+
+    <div class="helper" style="margin-top:10px;">
+      <span style="color:rgba(255,255,255,.8); font-weight:900;">Host link</span> = add <code>?host=1</code> to your URL on your phone.
     </div>
   </div>
 
   <!-- Game -->
   <div class="card" id="gameCard" style="display:none">
     <div class="row" id="hostControls">
-      <button class="primary" id="btnAddRound">➕ Add Round</button>
-      <button class="ghost" id="btnAddPlayer">👤 Add Player</button>
-      <button class="ghost" id="btnReset">🔄 Reset</button>
-      <button class="ghost" id="btnGoSetup">⚙️ Setup</button>
-      <button class="ghost" id="btnNewGame">🆕 New Game</button>
+      <button class="primary" id="btnAddRound" type="button">➕ Add Round</button>
+      <button class="ghost" id="btnUndo" type="button">↩️ Undo</button>
+      <button class="ghost" id="btnHistory" type="button">📜 History</button>
+      <button class="ghost" id="btnAddPlayer" type="button">👤 Add Player</button>
+      <button class="ghost" id="btnReset" type="button">🔄 Reset</button>
+      <button class="ghost" id="btnGoSetup" type="button">⚙️ Setup</button>
+      <button class="ghost" id="btnNewGame" type="button">🆕 New Game</button>
     </div>
 
     <hr class="sep" id="hostSep">
@@ -439,10 +528,25 @@ hr.sep{
         <label class="small" id="lblRoom">Room</label><br>
         <div class="row">
           <input id="roomInput" type="text" placeholder="majlis1" autocapitalize="none" autocomplete="off">
-          <button class="good" id="btnSetRoom">Set</button>
-          <button class="ghost" id="btnShareRoom">Share</button>
+          <button class="good" id="btnSetRoom" type="button">Set</button>
+          <button class="ghost" id="btnShareRoom" type="button">Share</button>
         </div>
-        <div class="helper" id="roomHelp">Share the VIEW link so players only see the scoreboard.</div>
+        <div class="helper" id="roomHelp">Share the viewer link so players only see the scoreboard.</div>
+      </div>
+    </div>
+
+    <!-- Leader cards -->
+    <div class="row" id="leaderRow" style="gap:12px; margin-top:10px;">
+      <div class="leaderCard topCard" id="topCard">
+        <div class="leaderTitle">TOP</div>
+        <div class="leaderName" id="topName">—</div>
+        <div class="leaderScore" id="topScore">0</div>
+      </div>
+
+      <div class="leaderCard lowCard" id="lowCard">
+        <div class="leaderTitle">LOW</div>
+        <div class="leaderName" id="lowName">—</div>
+        <div class="leaderScore" id="lowScore">0</div>
       </div>
     </div>
 
@@ -455,8 +559,6 @@ hr.sep{
       </thead>
       <tbody id="tbody"></tbody>
     </table>
-
-    <div class="history" id="history"></div>
   </div>
 
 </div>
@@ -487,28 +589,28 @@ hr.sep{
 
     <div class="scoreRow">
       <input id="mPoints" readonly value="0" />
-      <button class="ghost" id="mX2">×2 OFF</button>
+      <button class="ghost" id="mX2" type="button">×2 OFF</button>
     </div>
 
     <div class="kpGrid" id="mKeypad">
-      <button class="kp" data-k="1">1</button>
-      <button class="kp" data-k="2">2</button>
-      <button class="kp" data-k="3">3</button>
-      <button class="kp" data-k="4">4</button>
-      <button class="kp" data-k="5">5</button>
-      <button class="kp" data-k="6">6</button>
-      <button class="kp" data-k="7">7</button>
-      <button class="kp" data-k="8">8</button>
-      <button class="kp" data-k="9">9</button>
-      <button class="kp" data-k="clear">C</button>
-      <button class="kp" data-k="0">0</button>
-      <button class="kp" data-k="back">⌫</button>
+      <button class="kp" data-k="1" type="button">1</button>
+      <button class="kp" data-k="2" type="button">2</button>
+      <button class="kp" data-k="3" type="button">3</button>
+      <button class="kp" data-k="4" type="button">4</button>
+      <button class="kp" data-k="5" type="button">5</button>
+      <button class="kp" data-k="6" type="button">6</button>
+      <button class="kp" data-k="7" type="button">7</button>
+      <button class="kp" data-k="8" type="button">8</button>
+      <button class="kp" data-k="9" type="button">9</button>
+      <button class="kp" data-k="clear" type="button">C</button>
+      <button class="kp" data-k="0" type="button">0</button>
+      <button class="kp" data-k="back" type="button">⌫</button>
     </div>
 
     <div class="actions">
-      <button class="primary" id="mNext">Next</button>
-      <button class="ghost" id="mSkip">Skip</button>
-      <button class="ghost" id="mCancel">Cancel</button>
+      <button class="primary" id="mNext" type="button">Next</button>
+      <button class="ghost" id="mSkip" type="button">Skip</button>
+      <button class="ghost" id="mCancel" type="button">Cancel</button>
     </div>
   </div>
 </div>
@@ -521,7 +623,7 @@ hr.sep{
         <div class="nmTitle" id="nmTitle">Name</div>
         <div class="nmSub" id="nmSub">Type a fun name ✨</div>
       </div>
-      <div class="logo"><img src="icon.PNG" alt="CHECK"></div>
+      <div class="logo"><img src="icons/icon-192.png" alt="CHECK"></div>
     </div>
 
     <div style="margin-top:14px;">
@@ -529,11 +631,38 @@ hr.sep{
     </div>
 
     <div class="actions">
-      <button class="primary" id="nmSave">Save</button>
-      <button class="ghost" id="nmCancel">Cancel</button>
+      <button class="primary" id="nmSave" type="button">Save</button>
+      <button class="ghost" id="nmCancel" type="button">Cancel</button>
     </div>
   </div>
 </div>
+
+<!-- History Drawer -->
+<div id="historyDrawer">
+  <div class="sheet">
+    <div class="sheetTop">
+      <div class="sheetTitle" id="histTitle">Round History</div>
+      <div class="row" style="gap:8px;">
+        <button class="ghost" id="btnClearHistory" type="button">Clear</button>
+        <button class="ghost" id="btnCloseHistory" type="button">Close</button>
+      </div>
+    </div>
+    <div class="sheetBody">
+      <div id="historyList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- CHECK banner + confetti -->
+<div id="checkBanner">
+  <div style="margin:16vh auto 0; max-width:520px; text-align:center; padding:18px;
+    border-radius:22px; border:1px solid rgba(255,255,255,.16);
+    background:rgba(0,0,0,.45); backdrop-filter: blur(10px); box-shadow: 0 14px 40px rgba(0,0,0,.45);">
+    <div style="font-size:56px; font-weight:1200; letter-spacing:2px;">CHECK!</div>
+    <div id="checkBannerSub" style="margin-top:8px; color:rgba(255,255,255,.75); font-weight:900;"></div>
+  </div>
+</div>
+<canvas id="confetti"></canvas>
 
 <script>
 (() => {
@@ -568,6 +697,8 @@ hr.sep{
     hostSep: $("hostSep"),
 
     btnAddRound: $("btnAddRound"),
+    btnUndo: $("btnUndo"),
+    btnHistory: $("btnHistory"),
     btnAddPlayer: $("btnAddPlayer"),
     btnReset: $("btnReset"),
     btnGoSetup: $("btnGoSetup"),
@@ -579,14 +710,12 @@ hr.sep{
     btnShareRoom: $("btnShareRoom"),
 
     tbody: $("tbody"),
-    history: $("history"),
 
     pillRole: $("pillRole"),
     pillMode: $("pillMode"),
     pillRoom: $("pillRoom"),
 
     brandSub: $("brandSub"),
-
     lblPlayers: $("lblPlayers"),
     lblLang: $("lblLang"),
     tip: $("tip"),
@@ -601,6 +730,14 @@ hr.sep{
     splashText: $("splashText"),
 
     viewerLock: $("viewerLock"),
+
+    // leader
+    topCard: $("topCard"),
+    lowCard: $("lowCard"),
+    topName: $("topName"),
+    topScore: $("topScore"),
+    lowName: $("lowName"),
+    lowScore: $("lowScore"),
 
     // score modal
     scoreModal: $("scoreModal"),
@@ -621,15 +758,30 @@ hr.sep{
     nmInput: $("nmInput"),
     nmSave: $("nmSave"),
     nmCancel: $("nmCancel"),
+
+    // history drawer
+    historyDrawer: $("historyDrawer"),
+    historyList: $("historyList"),
+    histTitle: $("histTitle"),
+    btnCloseHistory: $("btnCloseHistory"),
+    btnClearHistory: $("btnClearHistory"),
+
+    // check banner + confetti
+    checkBanner: $("checkBanner"),
+    checkBannerSub: $("checkBannerSub"),
+    confetti: $("confetti"),
   };
 
-  /* ========= Role: host vs viewer =========
-     - Host uses: ?host=1 OR no role specified (default host on your phone)
-     - Viewer uses: ?view=1 (share this link with players)
+  /* ========= Role: SAFE BY DEFAULT =========
+     ✅ Host ONLY when URL has ?host=1
+     ✅ Everyone else is Viewer (cannot control)
   */
   const spBoot = new URLSearchParams(location.search);
-  const IS_VIEWER = spBoot.get("view") === "1";
-  const IS_HOST = !IS_VIEWER; // simple + reliable
+  const IS_HOST = spBoot.get("host") === "1";
+  const IS_VIEWER = !IS_HOST;
+
+  document.body.classList.toggle("viewer", IS_VIEWER);
+  document.body.classList.toggle("host", IS_HOST);
 
   /* ========= i18n ========= */
   const I18N = {
@@ -642,8 +794,10 @@ hr.sep{
       kick: "الإقصاء عند",
       hint: "يصبح اللاعب OUT عندما المجموع ≥ الهدف.",
       room: "Room",
-      roomHelp: "ارسل رابط VIEW للاعبين (يشوفون اللوحة فقط).",
+      roomHelp: "ارسل الرابط للاعبين (يشوفون اللوحة فقط).",
       addRound: "➕ جولة",
+      undo: "↩️ تراجع",
+      history: "📜 الجولات",
       addPlayer: "👤 لاعب",
       reset: "🔄 تصفير",
       setup: "⚙️ إعدادات",
@@ -672,7 +826,12 @@ hr.sep{
       roleHost: "Host",
       roleView: "Viewer",
       viewToast: "وضع العرض — اللوحة فقط (التحكم عند الهوست)",
-      shareText: "Share VIEW",
+      shareText: "Share",
+      roundHistory: "سجل الجولات",
+      clear: "مسح",
+      close: "إغلاق",
+      kicked: "OUT ✅",
+      check: "CHECK!",
     },
     en: {
       brandSub: "Scoreboard",
@@ -683,8 +842,10 @@ hr.sep{
       kick: "Kick-out at",
       hint: "Players become OUT when total ≥ target.",
       room: "Room",
-      roomHelp: "Share the VIEW link so players only see the scoreboard.",
+      roomHelp: "Share the link so players only see the scoreboard.",
       addRound: "➕ Add Round",
+      undo: "↩️ Undo",
+      history: "📜 History",
       addPlayer: "👤 Add Player",
       reset: "🔄 Reset",
       setup: "⚙️ Setup",
@@ -699,7 +860,7 @@ hr.sep{
       local: "Local",
       live: "Live",
       setRoomFirst: "Enter a room first",
-      copied: "VIEW link copied",
+      copied: "Link copied",
       modalNext: "Next",
       modalSkip: "Skip",
       modalCancel: "Cancel",
@@ -713,14 +874,19 @@ hr.sep{
       roleHost: "Host",
       roleView: "Viewer",
       viewToast: "VIEW MODE — scoreboard only (controlled by host)",
-      shareText: "Share VIEW",
+      shareText: "Share",
+      roundHistory: "Round History",
+      clear: "Clear",
+      close: "Close",
+      kicked: "is OUT ✅",
+      check: "CHECK!",
     }
   };
 
   /* ========= Storage ========= */
-  const KEY = "check_app_v3_state";
-  const KEY_ROOM = "check_app_v3_room";
-  const KEY_CID = "check_app_v3_client";
+  const KEY = "check_app_v4_state";
+  const KEY_ROOM = "check_app_v4_room";
+  const KEY_CID  = "check_app_v4_client";
 
   let clientId = localStorage.getItem(KEY_CID);
   if(!clientId){
@@ -735,7 +901,8 @@ hr.sep{
     names: [],
     totals: [],
     out: [],
-    history: [],
+    history: [],     // array of strings (newest first)
+    snapshots: [],   // undo stack
     target: 100
   };
 
@@ -745,7 +912,6 @@ hr.sep{
   }
 
   function saveLocal(){
-    // viewers should not overwrite host changes
     if(IS_VIEWER) return;
     state.target = Math.max(1, Math.floor(Number(el.target.value) || state.target || 100));
     localStorage.setItem(KEY, JSON.stringify(state));
@@ -755,11 +921,92 @@ hr.sep{
     try{
       const raw = localStorage.getItem(KEY);
       if(raw) state = { ...state, ...JSON.parse(raw) };
+      if(!Array.isArray(state.snapshots)) state.snapshots = [];
+      if(!Array.isArray(state.history)) state.history = [];
     }catch{}
   }
 
   function cleanRoom(s){
     return (s||"").trim().toLowerCase().replace(/[^a-z0-9_-]/g,"").slice(0,24);
+  }
+
+  /* ========= Viewer hard-lock ========= */
+  if(IS_VIEWER){
+    document.addEventListener("click", (e)=>{
+      const target = e.target.closest("button,input,select,textarea,a");
+      if(target){
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    }, true);
+  }
+
+  /* ========= UX: sound + haptic ========= */
+  function buzz(){
+    try{ if(navigator.vibrate) navigator.vibrate(20); }catch{}
+    try{
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if(!AC) return;
+      const ac = new AC();
+      const o = ac.createOscillator();
+      const g = ac.createGain();
+      o.type = "sine";
+      o.frequency.value = 720;
+      g.gain.value = 0.06;
+      o.connect(g); g.connect(ac.destination);
+      o.start();
+      setTimeout(()=>{ o.stop(); ac.close(); }, 70);
+    }catch{}
+  }
+
+  /* ========= CHECK banner + confetti ========= */
+  const conf = el.confetti;
+  const ctx = conf.getContext("2d");
+  function resizeConf(){ conf.width = innerWidth; conf.height = innerHeight; }
+  addEventListener("resize", resizeConf);
+
+  function showCheck(name){
+    el.checkBannerSub.textContent = state.lang === "ar" ? `${name} ${t("kicked")}` : `${name} ${t("kicked")}`;
+    el.checkBanner.style.display = "block";
+    conf.style.display = "block";
+    resizeConf();
+
+    const pieces = Array.from({length:140}, ()=>({
+      x: Math.random()*conf.width,
+      y: -20 - Math.random()*conf.height*0.2,
+      vx: (Math.random()-0.5)*4,
+      vy: 2 + Math.random()*6,
+      r: 3 + Math.random()*4,
+      a: Math.random()*Math.PI*2,
+      va: (Math.random()-0.5)*0.2
+    }));
+
+    const start = performance.now();
+    function anim(now){
+      ctx.clearRect(0,0,conf.width,conf.height);
+      ctx.globalAlpha = 0.95;
+      for(const p of pieces){
+        p.x += p.vx;
+        p.y += p.vy;
+        p.a += p.va;
+        p.vy += 0.04;
+
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.a);
+        ctx.fillStyle = `hsl(${(p.x+p.y)%360}, 90%, 60%)`;
+        ctx.fillRect(-p.r, -p.r, p.r*2.2, p.r*1.6);
+        ctx.restore();
+      }
+      if(now - start < 1200) requestAnimationFrame(anim);
+    }
+    requestAnimationFrame(anim);
+
+    setTimeout(()=>{
+      el.checkBanner.style.display = "none";
+      conf.style.display = "none";
+      ctx.clearRect(0,0,conf.width,conf.height);
+    }, 1400);
   }
 
   /* ========= UI ========= */
@@ -783,6 +1030,8 @@ hr.sep{
     el.btnShareRoom.textContent = t("shareText");
 
     el.btnAddRound.textContent = t("addRound");
+    el.btnUndo.textContent = t("undo");
+    el.btnHistory.textContent = t("history");
     el.btnAddPlayer.textContent = t("addPlayer");
     el.btnReset.textContent = t("reset");
     el.btnGoSetup.textContent = t("setup");
@@ -803,6 +1052,10 @@ hr.sep{
 
     el.viewerLock.querySelector(".toast").textContent = t("viewToast");
 
+    el.histTitle.textContent = t("roundHistory");
+    el.btnClearHistory.textContent = t("clear");
+    el.btnCloseHistory.textContent = t("close");
+
     updatePills();
     applyRoleUI();
   }
@@ -811,39 +1064,30 @@ hr.sep{
     el.pillRole.innerHTML = `Role: <strong>${IS_VIEWER ? t("roleView") : t("roleHost")}</strong>`;
 
     if(IS_VIEWER){
-      // hide all controls + setup, show only scoreboard
       el.setupCard.style.display = "none";
-      el.hostControls.style.display = "none";
-      el.hostSettings.style.display = "none";
-      el.hostSep.style.display = "none";
-      el.history.style.display = "none"; // viewers: no history (scoreboard only)
       el.viewerLock.style.display = "block";
 
-      // prevent keyboard focus
+      // disable focusable inputs
       el.roomInput.setAttribute("disabled","disabled");
       el.target.setAttribute("disabled","disabled");
       el.playersCount.setAttribute("disabled","disabled");
-      el.btnStart.style.display = "none";
-      el.btnAR.style.display = "none";
-      el.btnEN.style.display = "none";
-      el.btnSetRoom.style.display = "none";
-      // share still ok from host, but viewer doesn't need it
-      el.btnShareRoom.style.display = "none";
     }else{
       el.viewerLock.style.display = "none";
-      el.btnShareRoom.style.display = "";
+      el.roomInput.removeAttribute("disabled");
+      el.target.removeAttribute("disabled");
+      el.playersCount.removeAttribute("disabled");
     }
   }
 
-  function updatePills(){
+  function updatePills(extraPresenceText=""){
     const liveOk = firebaseReady && room;
-    el.pillMode.innerHTML = `<strong>${liveOk ? t("live") : t("local")}</strong>`;
+    const liveText = liveOk ? t("live") : t("local");
+    el.pillMode.innerHTML = `<strong>${liveText}</strong>${extraPresenceText ? " · " + extraPresenceText : ""}`;
     el.pillRoom.innerHTML = `Room: <strong>${room ? room : "—"}</strong>`;
   }
 
   function showSetup(){
     if(IS_VIEWER){
-      // viewer should never see setup
       el.setupCard.style.display = "none";
       return;
     }
@@ -877,21 +1121,50 @@ hr.sep{
     return {top, low, allEqual};
   }
 
+  function renderHistoryDrawer(){
+    const items = (state.history || []).slice(0, 50);
+    el.historyList.innerHTML = items.length
+      ? items.map(h => `<div class="item">• ${escapeHtml(h)}</div>`).join("")
+      : `<div style="color:rgba(255,255,255,.55); padding:10px;">—</div>`;
+  }
+
   function render(){
     el.tbody.innerHTML = "";
     const {top, low, allEqual} = computeTopLow();
 
+    // Leader cards
+    if (top >= 0) {
+      el.topName.textContent = state.names[top];
+      el.topScore.textContent = String(state.totals[top] ?? 0);
+      el.topCard.classList.remove("pop","glowTop");
+      void el.topCard.offsetWidth;
+      el.topCard.classList.add("pop","glowTop");
+    } else {
+      el.topName.textContent = "—";
+      el.topScore.textContent = "0";
+    }
+
+    if (low >= 0) {
+      el.lowName.textContent = state.names[low];
+      el.lowScore.textContent = String(state.totals[low] ?? 0);
+      el.lowCard.classList.remove("pop","glowLow");
+      void el.lowCard.offsetWidth;
+      el.lowCard.classList.add("pop","glowLow");
+    } else {
+      el.lowName.textContent = "—";
+      el.lowScore.textContent = "0";
+    }
+
     state.names.forEach((name,i)=>{
       const tr = document.createElement("tr");
       if(state.out[i]) tr.classList.add("out");
-      if(!state.out[i] && !allEqual && i===top) tr.classList.add("top"); // TOP red
-      if(!state.out[i] && !allEqual && i===low) tr.classList.add("low"); // LOW green
+      if(!state.out[i] && !allEqual && i===top) tr.classList.add("top");
+      if(!state.out[i] && !allEqual && i===low) tr.classList.add("low");
 
       const td1 = document.createElement("td");
       td1.className = "nameCell";
       td1.textContent = name;
 
-      // host can edit names by tapping
       if(IS_HOST){
         td1.onclick = ()=>editName(i);
       }else{
@@ -914,8 +1187,13 @@ hr.sep{
       el.tbody.appendChild(tr);
     });
 
-    // history hidden for viewers by role UI, but keep content updated for host
-    el.history.innerHTML = (state.history || []).slice(0,12).map(h => "• " + h).join("<br>");
+    renderHistoryDrawer();
+  }
+
+  function escapeHtml(s){
+    return String(s ?? "").replace(/[&<>"']/g, (m)=>({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+    }[m]));
   }
 
   /* ========= Name Modal ========= */
@@ -957,7 +1235,7 @@ hr.sep{
     pushRemoteDebounced(true);
   }
 
-  /* ========= Score Modal (Keypad + per-round x2 toggle) ========= */
+  /* ========= Score Modal (Keypad + per-player x2 toggle) ========= */
   function openScoreModalKeypad({playerName, playerTotal, roundNo}){
     return new Promise((resolve)=>{
       let x2 = false;
@@ -1010,7 +1288,7 @@ hr.sep{
 
       el.mNext.onclick = ()=>{
         let pts = Number(valueStr) || 0;
-        if(x2) pts *= 2; // per-player option
+        if(x2) pts *= 2;
         close({action:"ok", points: pts});
       };
       el.mSkip.onclick = ()=> close({action:"skip"});
@@ -1026,6 +1304,7 @@ hr.sep{
     state.totals = Array(n).fill(0);
     state.out = Array(n).fill(false);
     state.history = [];
+    state.snapshots = [];
     saveLocal();
   }
 
@@ -1034,7 +1313,7 @@ hr.sep{
     const n = Math.max(2, Math.min(10, Math.floor(Number(el.playersCount.value)||2)));
     newGame(n);
 
-    // playful name modal for each player
+    // Name each player
     for(let i=0;i<state.names.length;i++){
       const val = await openNameModal({
         title: t("nmTitleAdd") + ` ${i+1}`,
@@ -1058,6 +1337,17 @@ hr.sep{
 
     state.target = Math.max(1, Math.floor(Number(el.target.value)||state.target||100));
     const roundNo = (state.history?.length || 0) + 1;
+
+    // snapshot BEFORE this round (undo)
+    state.snapshots.unshift({
+      names: [...state.names],
+      totals: [...state.totals],
+      out: [...state.out],
+      history: [...state.history],
+      target: state.target
+    });
+    state.snapshots = state.snapshots.slice(0, 20);
+
     const changes = [];
 
     for(const i of inIdx){
@@ -1067,7 +1357,11 @@ hr.sep{
         roundNo
       });
 
-      if(!res || res.action==="cancel") return;
+      if(!res || res.action==="cancel"){
+        // undo snapshot push if cancelled mid-round
+        state.snapshots.shift();
+        return;
+      }
 
       if(res.action==="skip"){
         changes.push(`${state.names[i]} +0`);
@@ -1078,13 +1372,18 @@ hr.sep{
       state.totals[i] += pts;
       changes.push(`${state.names[i]} +${pts}`);
 
-      if(state.totals[i] >= state.target) state.out[i] = true;
+      if(state.totals[i] >= state.target && !state.out[i]){
+        state.out[i] = true;
+        showCheck(state.names[i]);
+        buzz();
+      }
     }
 
-    state.history.unshift(`${t("modalRound")}: ${changes.join(", ")}`);
+    state.history.unshift(`${t("modalRound")} ${roundNo}: ${changes.join(", ")}`);
     saveLocal();
     render();
     pushRemoteDebounced(true);
+    buzz();
   }
 
   async function addPlayer(){
@@ -1106,17 +1405,64 @@ hr.sep{
     saveLocal();
     render();
     pushRemoteDebounced(true);
+    buzz();
   }
 
   function resetTotals(){
     if(IS_VIEWER) return;
     if(!confirm(t("confirmReset"))) return;
+
+    state.snapshots.unshift({
+      names: [...state.names],
+      totals: [...state.totals],
+      out: [...state.out],
+      history: [...state.history],
+      target: state.target
+    });
+    state.snapshots = state.snapshots.slice(0, 20);
+
     state.totals = state.totals.map(()=>0);
     state.out = state.out.map(()=>false);
     state.history = [];
     saveLocal();
     render();
     pushRemoteDebounced(true);
+    buzz();
+  }
+
+  function undo(){
+    if(IS_VIEWER) return;
+    const snap = (state.snapshots || []).shift();
+    if(!snap) return;
+
+    state.names = snap.names;
+    state.totals = snap.totals;
+    state.out = snap.out;
+    state.history = snap.history;
+    state.target = snap.target;
+    el.target.value = state.target;
+
+    saveLocal();
+    render();
+    pushRemoteDebounced(true);
+    buzz();
+  }
+
+  function openHistory(){
+    if(IS_VIEWER) return;
+    renderHistoryDrawer();
+    el.historyDrawer.style.display = "block";
+  }
+  function closeHistory(){
+    el.historyDrawer.style.display = "none";
+  }
+  function clearHistory(){
+    if(IS_VIEWER) return;
+    state.history = [];
+    saveLocal();
+    render();
+    pushRemoteDebounced(true);
+    buzz();
   }
 
   /* ========= Live Share (Firebase RTDB) ========= */
@@ -1159,16 +1505,19 @@ hr.sep{
     }
   }
 
-  function roomPath(r){ return `rooms/${r}/state`; }
+  function roomStatePath(r){ return `rooms/${r}/state`; }
+  function presencePath(r){ return `rooms/${r}/presence`; }
 
   function attachListener(){
     if(!firebaseReady || !firebaseDb || !room) return;
     if(listenerRef){ listenerRef.off(); listenerRef=null; }
-    listenerRef = firebaseDb.ref(roomPath(room));
+    listenerRef = firebaseDb.ref(roomStatePath(room));
 
     listenerRef.on("value", snap=>{
       const remote = snap.val();
       if(!remote || typeof remote !== "object") return;
+
+      // if this update is ours, ignore
       if(remote._by === clientId) return;
 
       const ts = Number(remote._ts || 0);
@@ -1182,15 +1531,15 @@ hr.sep{
       state.history = Array.isArray(remote.history) ? remote.history : state.history;
       state.target = Number.isFinite(remote.target) ? remote.target : state.target;
 
-      // reflect target in UI
+      if(!Array.isArray(state.snapshots)) state.snapshots = [];
+
       el.target.value = state.target || 100;
 
-      // viewers should never write, only render
+      // host stores local for convenience, viewer doesn't need to
       if(IS_HOST) localStorage.setItem(KEY, JSON.stringify(state));
 
       applyLang();
       render();
-      updatePills();
     });
 
     updatePills();
@@ -1219,8 +1568,31 @@ hr.sep{
       _ts: Date.now()
     };
 
-    firebaseDb.ref(roomPath(room)).set(payload).catch(()=>{});
+    firebaseDb.ref(roomStatePath(room)).set(payload).catch(()=>{});
     updatePills();
+  }
+
+  function startPresence(){
+    if(!firebaseReady || !firebaseDb || !room) return;
+
+    const ref = firebaseDb.ref(`${presencePath(room)}/${clientId}`);
+    ref.onDisconnect().remove();
+    ref.set({ role: IS_HOST ? "host" : "viewer", ts: Date.now() }).catch(()=>{});
+
+    setInterval(()=> ref.update({ ts: Date.now() }).catch(()=>{}), 20000);
+
+    firebaseDb.ref(presencePath(room)).on("value", (snap)=>{
+      const obj = snap.val() || {};
+      const ids = Object.keys(obj);
+      const viewers = ids.filter(id => obj[id]?.role === "viewer").length;
+      const hosts = ids.filter(id => obj[id]?.role === "host").length;
+
+      if(IS_HOST){
+        updatePills(`👀 ${viewers} · 🎛️ ${hosts}`);
+      }else{
+        updatePills();
+      }
+    });
   }
 
   async function setRoom(){
@@ -1243,59 +1615,65 @@ hr.sep{
     if(!ok){ updatePills(); return; }
 
     attachListener();
+    startPresence();
     pushRemoteDebounced(true);
+    buzz();
   }
 
-  function makeViewLink(){
+  function makeViewerLink(){
     const url = new URL(location.href);
     url.searchParams.set("room", room);
     url.searchParams.set("lang", state.lang);
-    url.searchParams.set("view", "1"); // viewer mode
-    // ensure host param is not set
-    url.searchParams.delete("host");
+    url.searchParams.delete("host"); // viewer-safe
     return url.toString();
   }
 
   async function shareRoom(){
     if(IS_VIEWER) return;
     if(!room) return alert(t("setRoomFirst"));
-    const link = makeViewLink();
+    const link = makeViewerLink();
 
     if(navigator.share){
       try{ await navigator.share({ title:"CHECK", text: link, url: link }); }catch{}
     }else{
       try{ await navigator.clipboard.writeText(link); alert(t("copied")); }
-      catch{ prompt("Copy VIEW link", link); }
+      catch{ prompt("Copy link", link); }
     }
   }
 
   /* ========= Events ========= */
-  // Host-only buttons
   el.btnStart.onclick = startGame;
   el.btnAddRound.onclick = addRound;
   el.btnAddPlayer.onclick = addPlayer;
   el.btnReset.onclick = resetTotals;
+  el.btnUndo.onclick = undo;
+
+  el.btnHistory.onclick = openHistory;
+  el.btnCloseHistory.onclick = closeHistory;
+  el.btnClearHistory.onclick = clearHistory;
+  el.historyDrawer.onclick = (e)=>{
+    if(e.target === el.historyDrawer) closeHistory();
+  };
 
   el.btnGoSetup.onclick = ()=> { if(!IS_VIEWER) showSetup(); };
   el.btnNewGame.onclick = ()=> {
     if(IS_VIEWER) return;
     if(confirm(t("confirmNew"))){
-      // clear current game
       state.names = [];
       state.totals = [];
       state.out = [];
       state.history = [];
+      state.snapshots = [];
       saveLocal();
       pushRemoteDebounced(true);
       showSetup();
+      buzz();
     }
   };
 
-  // Language
-  el.btnAR.onclick = ()=>{ if(IS_VIEWER) return; state.lang="ar"; saveLocal(); applyLang(); render(); pushRemoteDebounced(true); };
-  el.btnEN.onclick = ()=>{ if(IS_VIEWER) return; state.lang="en"; saveLocal(); applyLang(); render(); pushRemoteDebounced(true); };
+  el.btnAR.onclick = ()=>{ if(IS_VIEWER) return; state.lang="ar"; saveLocal(); applyLang(); render(); pushRemoteDebounced(true); buzz(); };
+  el.btnEN.onclick = ()=>{ if(IS_VIEWER) return; state.lang="en"; saveLocal(); applyLang(); render(); pushRemoteDebounced(true); buzz(); };
 
-  // Kick-out target
   el.target.onchange = ()=>{
     if(IS_VIEWER) return;
     state.target = Math.max(1, Math.floor(Number(el.target.value)||100));
@@ -1303,59 +1681,63 @@ hr.sep{
     saveLocal();
     render();
     pushRemoteDebounced(true);
+    buzz();
   };
 
-  // Room
   el.btnSetRoom.onclick = setRoom;
   el.btnShareRoom.onclick = shareRoom;
 
   /* ========= Boot ========= */
   loadLocal();
 
-  // URL params: room/lang + viewer mode
+  // URL params: room/lang
   try{
     const sp = new URLSearchParams(location.search);
     const r = cleanRoom(sp.get("room"));
     const l = sp.get("lang");
-
     if(l === "ar" || l === "en") state.lang = l;
-
-    // If viewer opens with room in URL, use it (do not store permanently unless you want)
     if(r){
       room = r;
-      // keep local room so reload works
       localStorage.setItem(KEY_ROOM, room);
     }
   }catch{}
 
-  // Apply role UI and language first
   applyLang();
 
-  // Show game if we already have state, otherwise setup for host
-  if(state.names && state.names.length >= 2){
+  // Viewer always sees scoreboard page
+  el.gameCard.style.display = "";
+  el.setupCard.style.display = IS_HOST ? "" : "none";
+
+  // If we already have a game locally and we're host, show game
+  if(IS_HOST && state.names && state.names.length >= 2){
     showGame();
-  }else{
+  }else if(IS_HOST){
     showSetup();
+  }else{
+    // viewer: still render whatever we have (likely empty until Firebase pulls)
+    showGame();
   }
 
   el.roomInput.value = room || "";
-  updatePills();
+  el.target.value = state.target || 100;
+  render();
 
-  // If viewer: always show game card (scoreboard) even if empty
-  if(IS_VIEWER){
-    el.gameCard.style.display = "";
-    el.setupCard.style.display = "none";
-  }
-
-  // Auto-connect to firebase when room exists (viewer or host)
+  // Firebase auto-connect if room exists
   if(room){
     ensureFirebase().then(ok=>{
-      if(ok) attachListener();
+      if(ok){
+        attachListener();
+        startPresence();
+      }
       updatePills();
     });
   }
+
+  // Optional: service worker (only if you create sw.js)
+  // if ("serviceWorker" in navigator) {
+  //   navigator.serviceWorker.register("./sw.js").catch(()=>{});
+  // }
 })();
 </script>
 </body>
 </html>
-
