@@ -1,16 +1,21 @@
 <!doctype html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <title>CHECK</title>
+
+<!-- iOS + PWA icon -->
+<link rel="icon" type="image/PNG" href="icon.PNG">
+<link rel="apple-touch-icon" href="icon.PNG">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
 <style>
 :root{
   color-scheme: dark;
   --bg: #07070A;
   --card: rgba(255,255,255,.06);
-  --card2: rgba(255,255,255,.08);
   --border: rgba(255,255,255,.12);
   --text: #FFFFFF;
   --muted: rgba(255,255,255,.72);
@@ -19,7 +24,6 @@
   --primary: #4DA3FF;
   --primary2:#2C7DFF;
   --good: #32D583;
-  --warn: #FFD166;
 
   --topRed: #E5484D;     /* TOP */
   --lowGreen: #2ECC71;   /* LOW */
@@ -66,20 +70,21 @@ body{
   background: linear-gradient(135deg, rgba(77,163,255,.95), rgba(50,213,131,.9));
   box-shadow: var(--shadow);
   display:grid; place-items:center;
-  font-weight:1000;
+  font-weight:1100;
+  overflow:hidden;
 }
-.logo span{ filter: drop-shadow(0 6px 10px rgba(0,0,0,.35)); }
+.logo img{ width:100%; height:100%; object-fit:cover; }
 .brandText{
   display:flex; flex-direction:column; line-height:1.05;
 }
 .brandText .title{
-  font-size:18px; font-weight:1000; letter-spacing:1px;
+  font-size:18px; font-weight:1100; letter-spacing:1px;
 }
 .brandText .sub{
   font-size:12px; color:var(--muted2);
 }
 
-.pills{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+.pills{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; align-items:center; }
 .pill{
   padding: 8px 10px;
   border: 1px solid var(--border);
@@ -124,30 +129,30 @@ input, button{
 }
 
 input[type="number"]{ width:92px; text-align:center; }
-input[type="text"]{ width:160px; }
+input[type="text"]{ width:180px; }
+
 button{
   cursor:pointer;
-  font-weight:800;
+  font-weight:900;
   letter-spacing:.2px;
   box-shadow: 0 10px 24px rgba(0,0,0,.18);
 }
-button:active{ transform: translateY(1px); opacity:.9; }
+button:active{ transform: translateY(1px); opacity:.92; }
 
 button.primary{
   border:none;
   background: linear-gradient(135deg, var(--primary), var(--primary2));
 }
-button.ghost{
-  background: rgba(255,255,255,.05);
-}
 button.good{
   border:none;
   background: linear-gradient(135deg, rgba(50,213,131,.95), rgba(30,170,120,.95));
 }
-button.warn{
+button.bad{
   border:none;
-  color:#111;
-  background: linear-gradient(135deg, rgba(255,209,102,.95), rgba(255,179,0,.95));
+  background: linear-gradient(135deg, rgba(229,72,77,.95), rgba(170,40,55,.95));
+}
+button.ghost{
+  background: rgba(255,255,255,.05);
 }
 
 .helper{
@@ -166,7 +171,7 @@ thead th{
   text-align:start;
   font-size:12px;
   color: var(--muted2);
-  font-weight:900;
+  font-weight:1000;
   padding: 0 10px;
 }
 tbody tr{
@@ -185,10 +190,10 @@ tbody tr td:last-child{
   border-top-right-radius: 14px;
   border-bottom-right-radius: 14px;
   text-align:end;
-  font-weight:1000;
+  font-weight:1100;
 }
-tbody tr.top{ background: rgba(229,72,77,.25); border:1px solid rgba(229,72,77,.35); }
-tbody tr.low{ background: rgba(46,204,113,.22); border:1px solid rgba(46,204,113,.32); }
+tbody tr.top{ background: rgba(229,72,77,.25); border:1px solid rgba(229,72,77,.35); } /* TOP red */
+tbody tr.low{ background: rgba(46,204,113,.22); border:1px solid rgba(46,204,113,.32); } /* LOW green */
 tbody tr.out{ opacity:.35; }
 
 .nameCell{ cursor:pointer; }
@@ -241,7 +246,7 @@ hr.sep{
 }
 #splash .big{
   font-size: 52px;
-  font-weight: 1100;
+  font-weight: 1200;
   letter-spacing: 2px;
   background: linear-gradient(135deg, rgba(77,163,255,.95), rgba(50,213,131,.95));
   -webkit-background-clip:text;
@@ -254,7 +259,7 @@ hr.sep{
   font-size: 13px;
 }
 
-/* Score Modal + Keypad */
+/* Score Modal (Keypad) */
 #scoreModal{ display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,.70); backdrop-filter: blur(10px); }
 #scoreModal .panel{
   max-width: 560px;
@@ -265,10 +270,8 @@ hr.sep{
   background: rgba(255,255,255,.08);
   box-shadow: var(--shadow);
 }
-#scoreModal .topline{
-  display:flex; justify-content:space-between; align-items:center; gap:10px;
-}
-#scoreModal .pname{ font-size: 18px; font-weight: 1100; }
+#scoreModal .topline{ display:flex; justify-content:space-between; align-items:center; gap:10px; }
+#scoreModal .pname{ font-size: 18px; font-weight: 1200; }
 #scoreModal .pinfo{ font-size: 12px; color: var(--muted2); margin-top:4px; }
 #scoreModal .roundBadge{
   font-size: 12px; color: var(--muted);
@@ -277,10 +280,7 @@ hr.sep{
   border-radius: 999px;
   background: rgba(0,0,0,.18);
 }
-#scoreModal .scoreRow{
-  margin-top: 14px;
-  display:flex; gap:10px; align-items:center; flex-wrap:wrap;
-}
+#scoreModal .scoreRow{ margin-top: 14px; display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
 #scoreModal #mPoints{
   flex:1;
   font-size: 38px;
@@ -290,6 +290,7 @@ hr.sep{
 }
 #scoreModal #mX2{
   min-width: 120px;
+  font-weight: 1100;
 }
 #scoreModal #mX2.on{
   border:none;
@@ -307,15 +308,66 @@ hr.sep{
   border: 1px solid var(--border);
   background: rgba(0,0,0,.18);
   font-size: 22px;
-  font-weight: 1100;
+  font-weight: 1200;
 }
 #scoreModal .kp:active{ transform: translateY(1px); opacity:.9; }
-#scoreModal .actions{
-  margin-top: 14px;
-  display:flex; gap:10px; flex-wrap:wrap;
-}
+#scoreModal .actions{ margin-top: 14px; display:flex; gap:10px; flex-wrap:wrap; }
 #scoreModal .actions button{ flex: 1; }
-#scoreModal .actions button.secondary{ flex: unset; }
+
+/* Name Modal (Playful) */
+#nameModal{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:10000;
+  background:rgba(0,0,0,.70);
+  backdrop-filter: blur(10px);
+}
+#nameModal .panel{
+  max-width:520px;
+  margin:18vh auto;
+  padding:16px;
+  border-radius:22px;
+  border:1px solid var(--border);
+  background:rgba(255,255,255,.08);
+  box-shadow: var(--shadow);
+}
+#nameModal .topline{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+#nameModal .nmTitle{ font-size:18px; font-weight:1200; }
+#nameModal .nmSub{ font-size:12px; color:var(--muted2); margin-top:4px; }
+#nameModal .nmInput{
+  width:100%;
+  font-size:18px;
+  font-weight:1100;
+  padding:14px;
+  border-radius:16px;
+  background:rgba(0,0,0,.25);
+}
+#nameModal .actions{ margin-top:14px; display:flex; gap:10px; flex-wrap:wrap; }
+#nameModal .actions button{ flex:1; }
+
+/* Viewer-only lock overlay */
+#viewerLock{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:10001;
+  pointer-events:none;
+}
+#viewerLock .toast{
+  pointer-events:none;
+  max-width: 740px;
+  margin: 10px auto 0;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,.35);
+  color: var(--muted);
+  backdrop-filter: blur(10px);
+  text-align:center;
+  font-size: 12px;
+  font-weight: 900;
+}
 </style>
 </head>
 
@@ -324,7 +376,10 @@ hr.sep{
 
   <div class="header">
     <div class="brand">
-      <div class="logo"><span>✓</span></div>
+      <div class="logo">
+        <!-- App logo in header -->
+        <img src="icon.PNG" alt="CHECK">
+      </div>
       <div class="brandText">
         <div class="title">CHECK</div>
         <div class="sub" id="brandSub">Scoreboard</div>
@@ -332,18 +387,20 @@ hr.sep{
     </div>
 
     <div class="pills">
+      <div class="pill" id="pillRole">Role: <strong>Host</strong></div>
       <div class="pill" id="pillMode"><strong>Local</strong></div>
       <div class="pill" id="pillRoom">Room: <strong>—</strong></div>
     </div>
   </div>
 
+  <!-- Setup (HOST only; hidden for viewers) -->
   <div class="card" id="setupCard">
     <div class="row">
       <div style="flex:1; min-width:200px">
         <label class="small" id="lblPlayers">Players</label><br>
         <input id="playersCount" type="number" min="2" max="10" value="2">
       </div>
-      <button class="primary" id="btnStart" style="flex:1; min-width:220px;">Start / New Game</button>
+      <button class="primary" id="btnStart" style="flex:1; min-width:220px;">Start Game</button>
     </div>
 
     <hr class="sep">
@@ -355,12 +412,13 @@ hr.sep{
     </div>
 
     <div class="helper" id="tip">
-      Tip: This app auto-saves. Set a Room to play live with friends.
+      Auto-save is on. Set a Room to play live with friends.
     </div>
   </div>
 
+  <!-- Game -->
   <div class="card" id="gameCard" style="display:none">
-    <div class="row">
+    <div class="row" id="hostControls">
       <button class="primary" id="btnAddRound">➕ Add Round</button>
       <button class="ghost" id="btnAddPlayer">👤 Add Player</button>
       <button class="ghost" id="btnReset">🔄 Reset</button>
@@ -368,9 +426,9 @@ hr.sep{
       <button class="ghost" id="btnNewGame">🆕 New Game</button>
     </div>
 
-    <hr class="sep">
+    <hr class="sep" id="hostSep">
 
-    <div class="row">
+    <div class="row" id="hostSettings">
       <div style="flex:1; min-width:220px">
         <label class="small" id="lblKick">Kick-out at</label><br>
         <input id="target" type="number" min="1" value="100">
@@ -384,7 +442,7 @@ hr.sep{
           <button class="good" id="btnSetRoom">Set</button>
           <button class="ghost" id="btnShareRoom">Share</button>
         </div>
-        <div class="helper" id="roomHelp">Use the same Room to sync with friends.</div>
+        <div class="helper" id="roomHelp">Share the VIEW link so players only see the scoreboard.</div>
       </div>
     </div>
 
@@ -403,6 +461,11 @@ hr.sep{
 
 </div>
 
+<!-- Viewer lock toast -->
+<div id="viewerLock">
+  <div class="toast">VIEW MODE — scoreboard only (controlled by host)</div>
+</div>
+
 <!-- Splash -->
 <div id="splash">
   <div class="box">
@@ -411,7 +474,7 @@ hr.sep{
   </div>
 </div>
 
-<!-- Score Modal (No Keyboard) -->
+<!-- Score Modal (Host only) -->
 <div id="scoreModal">
   <div class="panel">
     <div class="topline">
@@ -424,7 +487,7 @@ hr.sep{
 
     <div class="scoreRow">
       <input id="mPoints" readonly value="0" />
-      <button class="warn" id="mX2">×2 OFF</button>
+      <button class="ghost" id="mX2">×2 OFF</button>
     </div>
 
     <div class="kpGrid" id="mKeypad">
@@ -444,8 +507,30 @@ hr.sep{
 
     <div class="actions">
       <button class="primary" id="mNext">Next</button>
-      <button class="ghost secondary" id="mSkip">Skip</button>
-      <button class="ghost secondary" id="mCancel">Cancel</button>
+      <button class="ghost" id="mSkip">Skip</button>
+      <button class="ghost" id="mCancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Name Modal (Host only) -->
+<div id="nameModal">
+  <div class="panel">
+    <div class="topline">
+      <div>
+        <div class="nmTitle" id="nmTitle">Name</div>
+        <div class="nmSub" id="nmSub">Type a fun name ✨</div>
+      </div>
+      <div class="logo"><img src="icon.PNG" alt="CHECK"></div>
+    </div>
+
+    <div style="margin-top:14px;">
+      <input id="nmInput" class="nmInput" type="text" autocapitalize="words" autocomplete="off" placeholder="Player 1" />
+    </div>
+
+    <div class="actions">
+      <button class="primary" id="nmSave">Save</button>
+      <button class="ghost" id="nmCancel">Cancel</button>
     </div>
   </div>
 </div>
@@ -454,7 +539,7 @@ hr.sep{
 (() => {
   "use strict";
 
-  /* ===== Firebase (your config) ===== */
+  /* ========= Firebase (your config) ========= */
   const FIREBASE_ENABLED = true;
   const firebaseConfig = {
     apiKey: "AIzaSyC0twO6-07rT8NNwqVOlLDpwRIakjC122Y",
@@ -467,7 +552,7 @@ hr.sep{
     measurementId: "G-N68P7BHP86"
   };
 
-  /* ===== DOM ===== */
+  /* ========= DOM ========= */
   const $ = (id) => document.getElementById(id);
 
   const el = {
@@ -477,6 +562,10 @@ hr.sep{
     btnStart: $("btnStart"),
     btnAR: $("btnAR"),
     btnEN: $("btnEN"),
+
+    hostControls: $("hostControls"),
+    hostSettings: $("hostSettings"),
+    hostSep: $("hostSep"),
 
     btnAddRound: $("btnAddRound"),
     btnAddPlayer: $("btnAddPlayer"),
@@ -492,6 +581,7 @@ hr.sep{
     tbody: $("tbody"),
     history: $("history"),
 
+    pillRole: $("pillRole"),
     pillMode: $("pillMode"),
     pillRoom: $("pillRoom"),
 
@@ -510,7 +600,9 @@ hr.sep{
     splash: $("splash"),
     splashText: $("splashText"),
 
-    // modal
+    viewerLock: $("viewerLock"),
+
+    // score modal
     scoreModal: $("scoreModal"),
     mPlayer: $("mPlayer"),
     mInfo: $("mInfo"),
@@ -520,10 +612,26 @@ hr.sep{
     mKeypad: $("mKeypad"),
     mNext: $("mNext"),
     mSkip: $("mSkip"),
-    mCancel: $("mCancel")
+    mCancel: $("mCancel"),
+
+    // name modal
+    nameModal: $("nameModal"),
+    nmTitle: $("nmTitle"),
+    nmSub: $("nmSub"),
+    nmInput: $("nmInput"),
+    nmSave: $("nmSave"),
+    nmCancel: $("nmCancel"),
   };
 
-  /* ===== i18n ===== */
+  /* ========= Role: host vs viewer =========
+     - Host uses: ?host=1 OR no role specified (default host on your phone)
+     - Viewer uses: ?view=1 (share this link with players)
+  */
+  const spBoot = new URLSearchParams(location.search);
+  const IS_VIEWER = spBoot.get("view") === "1";
+  const IS_HOST = !IS_VIEWER; // simple + reliable
+
+  /* ========= i18n ========= */
   const I18N = {
     ar: {
       brandSub: "لوحة النقاط",
@@ -534,9 +642,7 @@ hr.sep{
       kick: "الإقصاء عند",
       hint: "يصبح اللاعب OUT عندما المجموع ≥ الهدف.",
       room: "Room",
-      roomHelp: "استخدم نفس الغرفة للمزامنة مع أصدقائك.",
-      set: "Set",
-      share: "Share",
+      roomHelp: "ارسل رابط VIEW للاعبين (يشوفون اللوحة فقط).",
       addRound: "➕ جولة",
       addPlayer: "👤 لاعب",
       reset: "🔄 تصفير",
@@ -545,7 +651,6 @@ hr.sep{
       thPlayer: "اللاعب",
       thTotal: "المجموع",
       out: "OUT",
-      editName: "تعديل الاسم",
       maxPlayers: "الحد الأقصى 10 لاعبين.",
       confirmReset: "تصفير كل النقاط وإرجاع الجميع IN؟",
       confirmNew: "بدء لعبة جديدة؟ (سيتم مسح الحالي)",
@@ -559,6 +664,15 @@ hr.sep{
       modalCancel: "إلغاء",
       modalRound: "جولة",
       modalTotal: "مجموعه الحالي",
+      nmTitleAdd: "اسم اللاعب",
+      nmTitleEdit: "تعديل الاسم",
+      nmSub: "اختر اسم لطيف ✨",
+      nmSave: "حفظ",
+      nmCancel: "إلغاء",
+      roleHost: "Host",
+      roleView: "Viewer",
+      viewToast: "وضع العرض — اللوحة فقط (التحكم عند الهوست)",
+      shareText: "Share VIEW",
     },
     en: {
       brandSub: "Scoreboard",
@@ -569,9 +683,7 @@ hr.sep{
       kick: "Kick-out at",
       hint: "Players become OUT when total ≥ target.",
       room: "Room",
-      roomHelp: "Use the same room to sync with friends.",
-      set: "Set",
-      share: "Share",
+      roomHelp: "Share the VIEW link so players only see the scoreboard.",
       addRound: "➕ Add Round",
       addPlayer: "👤 Add Player",
       reset: "🔄 Reset",
@@ -580,7 +692,6 @@ hr.sep{
       thPlayer: "Player",
       thTotal: "Total",
       out: "OUT",
-      editName: "Edit name",
       maxPlayers: "Max players is 10.",
       confirmReset: "Reset all totals and set everyone IN?",
       confirmNew: "Start a new game? (clears current)",
@@ -588,19 +699,29 @@ hr.sep{
       local: "Local",
       live: "Live",
       setRoomFirst: "Enter a room first",
-      copied: "Link copied",
+      copied: "VIEW link copied",
       modalNext: "Next",
       modalSkip: "Skip",
       modalCancel: "Cancel",
       modalRound: "Round",
       modalTotal: "Current total",
+      nmTitleAdd: "Player name",
+      nmTitleEdit: "Edit name",
+      nmSub: "Pick a fun name ✨",
+      nmSave: "Save",
+      nmCancel: "Cancel",
+      roleHost: "Host",
+      roleView: "Viewer",
+      viewToast: "VIEW MODE — scoreboard only (controlled by host)",
+      shareText: "Share VIEW",
     }
   };
 
-  /* ===== Storage ===== */
-  const KEY = "check_app_v1_state";
-  const KEY_ROOM = "check_app_v1_room";
-  const KEY_CID = "check_app_v1_client";
+  /* ========= Storage ========= */
+  const KEY = "check_app_v3_state";
+  const KEY_ROOM = "check_app_v3_room";
+  const KEY_CID = "check_app_v3_client";
+
   let clientId = localStorage.getItem(KEY_CID);
   if(!clientId){
     clientId = "c_" + Math.random().toString(36).slice(2) + Date.now().toString(36);
@@ -618,10 +739,15 @@ hr.sep{
     target: 100
   };
 
-  function t(k){ return (I18N[state.lang] && I18N[state.lang][k]) ? I18N[state.lang][k] : (I18N.en[k] || k); }
+  function t(k){
+    const pack = I18N[state.lang] || I18N.en;
+    return pack[k] ?? I18N.en[k] ?? k;
+  }
 
   function saveLocal(){
-    state.target = Math.max(1, Math.floor(Number(el.target.value) || 100));
+    // viewers should not overwrite host changes
+    if(IS_VIEWER) return;
+    state.target = Math.max(1, Math.floor(Number(el.target.value) || state.target || 100));
     localStorage.setItem(KEY, JSON.stringify(state));
   }
 
@@ -636,7 +762,7 @@ hr.sep{
     return (s||"").trim().toLowerCase().replace(/[^a-z0-9_-]/g,"").slice(0,24);
   }
 
-  /* ===== UI ===== */
+  /* ========= UI ========= */
   function applyLang(){
     document.documentElement.lang = state.lang;
     document.documentElement.dir  = (state.lang === "ar") ? "rtl" : "ltr";
@@ -653,8 +779,8 @@ hr.sep{
 
     el.lblRoom.textContent = t("room");
     el.roomHelp.textContent = t("roomHelp");
-    el.btnSetRoom.textContent = t("set");
-    el.btnShareRoom.textContent = t("share");
+
+    el.btnShareRoom.textContent = t("shareText");
 
     el.btnAddRound.textContent = t("addRound");
     el.btnAddPlayer.textContent = t("addPlayer");
@@ -667,12 +793,46 @@ hr.sep{
 
     el.splashText.textContent = t("splash");
 
-    // modal buttons
     el.mNext.textContent = t("modalNext");
     el.mSkip.textContent = t("modalSkip");
     el.mCancel.textContent = t("modalCancel");
 
+    el.nmSub.textContent = t("nmSub");
+    el.nmSave.textContent = t("nmSave");
+    el.nmCancel.textContent = t("nmCancel");
+
+    el.viewerLock.querySelector(".toast").textContent = t("viewToast");
+
     updatePills();
+    applyRoleUI();
+  }
+
+  function applyRoleUI(){
+    el.pillRole.innerHTML = `Role: <strong>${IS_VIEWER ? t("roleView") : t("roleHost")}</strong>`;
+
+    if(IS_VIEWER){
+      // hide all controls + setup, show only scoreboard
+      el.setupCard.style.display = "none";
+      el.hostControls.style.display = "none";
+      el.hostSettings.style.display = "none";
+      el.hostSep.style.display = "none";
+      el.history.style.display = "none"; // viewers: no history (scoreboard only)
+      el.viewerLock.style.display = "block";
+
+      // prevent keyboard focus
+      el.roomInput.setAttribute("disabled","disabled");
+      el.target.setAttribute("disabled","disabled");
+      el.playersCount.setAttribute("disabled","disabled");
+      el.btnStart.style.display = "none";
+      el.btnAR.style.display = "none";
+      el.btnEN.style.display = "none";
+      el.btnSetRoom.style.display = "none";
+      // share still ok from host, but viewer doesn't need it
+      el.btnShareRoom.style.display = "none";
+    }else{
+      el.viewerLock.style.display = "none";
+      el.btnShareRoom.style.display = "";
+    }
   }
 
   function updatePills(){
@@ -682,6 +842,11 @@ hr.sep{
   }
 
   function showSetup(){
+    if(IS_VIEWER){
+      // viewer should never see setup
+      el.setupCard.style.display = "none";
+      return;
+    }
     el.setupCard.style.display = "";
     el.gameCard.style.display = "none";
   }
@@ -695,6 +860,7 @@ hr.sep{
   }
 
   function showSplash(){
+    if(IS_VIEWER) return;
     el.splash.style.display = "block";
     setTimeout(()=>{ el.splash.style.display = "none"; }, 900);
   }
@@ -718,13 +884,21 @@ hr.sep{
     state.names.forEach((name,i)=>{
       const tr = document.createElement("tr");
       if(state.out[i]) tr.classList.add("out");
-      if(!state.out[i] && !allEqual && i===top) tr.classList.add("top");
-      if(!state.out[i] && !allEqual && i===low) tr.classList.add("low");
+      if(!state.out[i] && !allEqual && i===top) tr.classList.add("top"); // TOP red
+      if(!state.out[i] && !allEqual && i===low) tr.classList.add("low"); // LOW green
 
       const td1 = document.createElement("td");
       td1.className = "nameCell";
       td1.textContent = name;
-      td1.onclick = ()=>editName(i);
+
+      // host can edit names by tapping
+      if(IS_HOST){
+        td1.onclick = ()=>editName(i);
+      }else{
+        td1.onclick = null;
+        td1.style.cursor = "default";
+      }
+
       if(state.out[i]){
         const tag = document.createElement("span");
         tag.className="tag";
@@ -733,36 +907,57 @@ hr.sep{
       }
 
       const td2 = document.createElement("td");
-      td2.textContent = String(state.totals[i]);
+      td2.textContent = String(state.totals[i] ?? 0);
 
       tr.appendChild(td1);
       tr.appendChild(td2);
       el.tbody.appendChild(tr);
     });
 
+    // history hidden for viewers by role UI, but keep content updated for host
     el.history.innerHTML = (state.history || []).slice(0,12).map(h => "• " + h).join("<br>");
   }
 
-  function editName(i){
-    const v = prompt(t("editName"), state.names[i]);
-    if(v === null) return;
-    const nm = v.trim();
-    if(nm) state.names[i] = nm;
+  /* ========= Name Modal ========= */
+  function openNameModal({ title, placeholder, initialValue }){
+    return new Promise((resolve)=>{
+      el.nmTitle.textContent = title || "Name";
+      el.nmInput.placeholder = placeholder || "";
+      el.nmInput.value = initialValue || "";
+
+      const close = (val) => {
+        el.nameModal.style.display = "none";
+        el.nmSave.onclick = null;
+        el.nmCancel.onclick = null;
+        resolve(val);
+      };
+
+      el.nmSave.onclick = () => {
+        const v = (el.nmInput.value || "").trim();
+        close(v.length ? v : null);
+      };
+      el.nmCancel.onclick = () => close(null);
+
+      el.nameModal.style.display = "block";
+      setTimeout(()=> el.nmInput.focus(), 50);
+    });
+  }
+
+  async function editName(i){
+    if(IS_VIEWER) return;
+    const val = await openNameModal({
+      title: t("nmTitleEdit"),
+      placeholder: state.names[i],
+      initialValue: state.names[i]
+    });
+    if(!val) return;
+    state.names[i] = val;
     saveLocal();
     render();
-    pushRemoteDebounced();
+    pushRemoteDebounced(true);
   }
 
-  /* ===== Game ===== */
-  function newGame(n){
-    state.names = Array.from({length:n}, (_,i)=>`Player ${i+1}`);
-    state.totals = Array(n).fill(0);
-    state.out = Array(n).fill(false);
-    state.history = [];
-    saveLocal();
-  }
-
-  /* ===== Score Modal (Keypad) ===== */
+  /* ========= Score Modal (Keypad + per-round x2 toggle) ========= */
   function openScoreModalKeypad({playerName, playerTotal, roundNo}){
     return new Promise((resolve)=>{
       let x2 = false;
@@ -783,13 +978,8 @@ hr.sep{
       };
 
       el.mPlayer.textContent = playerName;
-      el.mInfo.textContent = (state.lang==="ar")
-        ? `${t("modalTotal")}: ${playerTotal}`
-        : `${t("modalTotal")}: ${playerTotal}`;
-
-      el.mRound.textContent = (state.lang==="ar")
-        ? `${t("modalRound")} ${roundNo}`
-        : `${t("modalRound")} ${roundNo}`;
+      el.mInfo.textContent = `${t("modalTotal")}: ${playerTotal}`;
+      el.mRound.textContent = `${t("modalRound")} ${roundNo}`;
 
       setValue("0");
       setX2(false);
@@ -820,7 +1010,7 @@ hr.sep{
 
       el.mNext.onclick = ()=>{
         let pts = Number(valueStr) || 0;
-        if(x2) pts *= 2;
+        if(x2) pts *= 2; // per-player option
         close({action:"ok", points: pts});
       };
       el.mSkip.onclick = ()=> close({action:"skip"});
@@ -830,11 +1020,43 @@ hr.sep{
     });
   }
 
+  /* ========= Game logic ========= */
+  function newGame(n){
+    state.names = Array.from({length:n}, (_,i)=>`Player ${i+1}`);
+    state.totals = Array(n).fill(0);
+    state.out = Array(n).fill(false);
+    state.history = [];
+    saveLocal();
+  }
+
+  async function startGame(){
+    if(IS_VIEWER) return;
+    const n = Math.max(2, Math.min(10, Math.floor(Number(el.playersCount.value)||2)));
+    newGame(n);
+
+    // playful name modal for each player
+    for(let i=0;i<state.names.length;i++){
+      const val = await openNameModal({
+        title: t("nmTitleAdd") + ` ${i+1}`,
+        placeholder: state.names[i],
+        initialValue: state.names[i]
+      });
+      if(val) state.names[i] = val;
+    }
+
+    saveLocal();
+    applyLang();
+    showGame();
+    showSplash();
+    pushRemoteDebounced(true);
+  }
+
   async function addRound(){
+    if(IS_VIEWER) return;
     const inIdx = state.names.map((_,i)=>i).filter(i=>!state.out[i]);
     if(inIdx.length===0) return;
 
-    state.target = Math.max(1, Math.floor(Number(el.target.value)||100));
+    state.target = Math.max(1, Math.floor(Number(el.target.value)||state.target||100));
     const roundNo = (state.history?.length || 0) + 1;
     const changes = [];
 
@@ -846,6 +1068,7 @@ hr.sep{
       });
 
       if(!res || res.action==="cancel") return;
+
       if(res.action==="skip"){
         changes.push(`${state.names[i]} +0`);
         continue;
@@ -861,51 +1084,42 @@ hr.sep{
     state.history.unshift(`${t("modalRound")}: ${changes.join(", ")}`);
     saveLocal();
     render();
-    pushRemoteDebounced();
+    pushRemoteDebounced(true);
   }
 
-  function addPlayer(){
+  async function addPlayer(){
+    if(IS_VIEWER) return;
     if(state.names.length >= 10) return alert(t("maxPlayers"));
-    const v = prompt(t("addPlayer"), `Player ${state.names.length+1}`);
-    if(v === null) return;
-    const nm = v.trim() || `Player ${state.names.length+1}`;
-    state.names.push(nm);
+
+    const defaultName = `Player ${state.names.length+1}`;
+    const val = await openNameModal({
+      title: t("nmTitleAdd"),
+      placeholder: defaultName,
+      initialValue: defaultName
+    });
+
+    const name = val || defaultName;
+    state.names.push(name);
     state.totals.push(0);
     state.out.push(false);
+
     saveLocal();
     render();
-    pushRemoteDebounced();
+    pushRemoteDebounced(true);
   }
 
   function resetTotals(){
+    if(IS_VIEWER) return;
     if(!confirm(t("confirmReset"))) return;
     state.totals = state.totals.map(()=>0);
     state.out = state.out.map(()=>false);
     state.history = [];
     saveLocal();
     render();
-    pushRemoteDebounced();
-  }
-
-  function startGame(){
-    const n = Math.max(2, Math.min(10, Math.floor(Number(el.playersCount.value)||2)));
-    newGame(n);
-
-    for(let i=0;i<state.names.length;i++){
-      const v = prompt(`Name for ${state.names[i]}`, state.names[i]);
-      if(v === null) break;
-      const nm = v.trim();
-      if(nm) state.names[i] = nm;
-    }
-
-    saveLocal();
-    applyLang();
-    showGame();
-    showSplash();     // ✅ show CHECK
     pushRemoteDebounced(true);
   }
 
-  /* ===== Live Share (Firebase RTDB) ===== */
+  /* ========= Live Share (Firebase RTDB) ========= */
   let firebaseReady = false;
   let firebaseDb = null;
   let listenerRef = null;
@@ -951,6 +1165,7 @@ hr.sep{
     if(!firebaseReady || !firebaseDb || !room) return;
     if(listenerRef){ listenerRef.off(); listenerRef=null; }
     listenerRef = firebaseDb.ref(roomPath(room));
+
     listenerRef.on("value", snap=>{
       const remote = snap.val();
       if(!remote || typeof remote !== "object") return;
@@ -967,9 +1182,12 @@ hr.sep{
       state.history = Array.isArray(remote.history) ? remote.history : state.history;
       state.target = Number.isFinite(remote.target) ? remote.target : state.target;
 
+      // reflect target in UI
       el.target.value = state.target || 100;
 
-      saveLocal();
+      // viewers should never write, only render
+      if(IS_HOST) localStorage.setItem(KEY, JSON.stringify(state));
+
       applyLang();
       render();
       updatePills();
@@ -979,11 +1197,13 @@ hr.sep{
   }
 
   function pushRemoteDebounced(force=false){
+    if(IS_VIEWER) return;
     clearTimeout(writeTimer);
-    writeTimer = setTimeout(()=>pushRemote(force), 250);
+    writeTimer = setTimeout(()=>pushRemote(force), 220);
   }
 
   async function pushRemote(force=false){
+    if(IS_VIEWER) return;
     if(!room) return;
     const ok = await ensureFirebase();
     if(!ok) return;
@@ -1004,6 +1224,8 @@ hr.sep{
   }
 
   async function setRoom(){
+    if(IS_VIEWER) return;
+
     const r = cleanRoom(el.roomInput.value);
     if(!r){
       room = "";
@@ -1024,58 +1246,92 @@ hr.sep{
     pushRemoteDebounced(true);
   }
 
-  async function shareRoom(){
-    if(!room) return alert(t("setRoomFirst"));
+  function makeViewLink(){
     const url = new URL(location.href);
     url.searchParams.set("room", room);
     url.searchParams.set("lang", state.lang);
-    const link = url.toString();
+    url.searchParams.set("view", "1"); // viewer mode
+    // ensure host param is not set
+    url.searchParams.delete("host");
+    return url.toString();
+  }
+
+  async function shareRoom(){
+    if(IS_VIEWER) return;
+    if(!room) return alert(t("setRoomFirst"));
+    const link = makeViewLink();
 
     if(navigator.share){
       try{ await navigator.share({ title:"CHECK", text: link, url: link }); }catch{}
     }else{
       try{ await navigator.clipboard.writeText(link); alert(t("copied")); }
-      catch{ prompt("Copy link", link); }
+      catch{ prompt("Copy VIEW link", link); }
     }
   }
 
-  /* ===== Events ===== */
+  /* ========= Events ========= */
+  // Host-only buttons
   el.btnStart.onclick = startGame;
   el.btnAddRound.onclick = addRound;
   el.btnAddPlayer.onclick = addPlayer;
   el.btnReset.onclick = resetTotals;
 
-  el.btnGoSetup.onclick = ()=>{ showSetup(); };
-  el.btnNewGame.onclick = ()=>{ if(confirm(t("confirmNew"))) showSetup(); };
+  el.btnGoSetup.onclick = ()=> { if(!IS_VIEWER) showSetup(); };
+  el.btnNewGame.onclick = ()=> {
+    if(IS_VIEWER) return;
+    if(confirm(t("confirmNew"))){
+      // clear current game
+      state.names = [];
+      state.totals = [];
+      state.out = [];
+      state.history = [];
+      saveLocal();
+      pushRemoteDebounced(true);
+      showSetup();
+    }
+  };
 
-  el.btnAR.onclick = ()=>{ state.lang="ar"; saveLocal(); applyLang(); render(); pushRemoteDebounced(true); };
-  el.btnEN.onclick = ()=>{ state.lang="en"; saveLocal(); applyLang(); render(); pushRemoteDebounced(true); };
+  // Language
+  el.btnAR.onclick = ()=>{ if(IS_VIEWER) return; state.lang="ar"; saveLocal(); applyLang(); render(); pushRemoteDebounced(true); };
+  el.btnEN.onclick = ()=>{ if(IS_VIEWER) return; state.lang="en"; saveLocal(); applyLang(); render(); pushRemoteDebounced(true); };
 
+  // Kick-out target
   el.target.onchange = ()=>{
+    if(IS_VIEWER) return;
     state.target = Math.max(1, Math.floor(Number(el.target.value)||100));
-    state.out = state.totals.map(x => x >= state.target);
+    state.out = state.totals.map(x => (Number(x)||0) >= state.target);
     saveLocal();
     render();
     pushRemoteDebounced(true);
   };
 
+  // Room
   el.btnSetRoom.onclick = setRoom;
   el.btnShareRoom.onclick = shareRoom;
 
-  /* ===== Boot ===== */
+  /* ========= Boot ========= */
   loadLocal();
 
-  // URL params (room/lang)
+  // URL params: room/lang + viewer mode
   try{
     const sp = new URLSearchParams(location.search);
     const r = cleanRoom(sp.get("room"));
     const l = sp.get("lang");
-    if(l==="ar"||l==="en") state.lang = l;
-    if(r) room = r, localStorage.setItem(KEY_ROOM, room);
+
+    if(l === "ar" || l === "en") state.lang = l;
+
+    // If viewer opens with room in URL, use it (do not store permanently unless you want)
+    if(r){
+      room = r;
+      // keep local room so reload works
+      localStorage.setItem(KEY_ROOM, room);
+    }
   }catch{}
 
+  // Apply role UI and language first
   applyLang();
 
+  // Show game if we already have state, otherwise setup for host
   if(state.names && state.names.length >= 2){
     showGame();
   }else{
@@ -1085,6 +1341,13 @@ hr.sep{
   el.roomInput.value = room || "";
   updatePills();
 
+  // If viewer: always show game card (scoreboard) even if empty
+  if(IS_VIEWER){
+    el.gameCard.style.display = "";
+    el.setupCard.style.display = "none";
+  }
+
+  // Auto-connect to firebase when room exists (viewer or host)
   if(room){
     ensureFirebase().then(ok=>{
       if(ok) attachListener();
@@ -1095,3 +1358,4 @@ hr.sep{
 </script>
 </body>
 </html>
+
