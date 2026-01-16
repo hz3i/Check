@@ -4,52 +4,33 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Game Score</title>
-
 <style>
-:root{
-  color-scheme: dark;
-  --bg:#000;
-  --card:#111;
-  --border:#333;
-  --btn:#1e88e5;
-  --red:#c62828;     /* TOP */
-  --green:#2e7d32;   /* LOW */
-  --muted:#aaa;
-}
-body{ margin:0; font-family:system-ui,-apple-system; background:var(--bg); color:#fff; }
-h1{ margin:16px; }
-.card{ border:1px solid var(--border); border-radius:16px; padding:16px; margin:16px; background:var(--card); }
-.row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
-button,input{
-  padding:10px 14px; border-radius:12px; border:1px solid var(--border);
-  background:#222; color:#fff; font-size:15px;
-}
-button.primary{ background:var(--btn); border:none; font-weight:700; }
-button:active{ opacity:.85; }
-input[type="number"]{ width:70px; text-align:center; }
-input[type="text"]{ width:140px; }
-.small{ font-size:13px; color:var(--muted); margin:6px 0 0; }
-table{ width:100%; border-collapse:collapse; margin-top:12px; }
-th,td{ padding:10px; border-bottom:1px solid var(--border); }
-td.nameCell{ cursor:pointer; }
-tr.top{ background:var(--red); }   /* TOP = RED */
-tr.low{ background:var(--green); } /* LOW = GREEN */
-tr.out{ opacity:.35; }
-.history{ font-size:13px; color:var(--muted); margin-top:10px; line-height:1.4; }
-.pill{ display:inline-block; padding:2px 8px; border:1px solid #666; border-radius:999px; font-size:12px; margin-inline-start:8px; opacity:.9; }
-
-.toggle{
-  display:flex; align-items:center; gap:8px;
-  padding:8px 10px; border:1px solid var(--border); border-radius:12px; background:#151515;
-}
-.status{
-  padding:6px 10px; border:1px solid var(--border); border-radius:999px;
-  background:#151515; font-size:12px; color:var(--muted);
-}
+:root{color-scheme:dark;--bg:#000;--card:#111;--border:#333;--btn:#1e88e5;--red:#c62828;--green:#2e7d32;--muted:#aaa;--chip:#151515}
+body{margin:0;font-family:system-ui,-apple-system;background:var(--bg);color:#fff}
+h1{margin:16px}
+.card{border:1px solid var(--border);border-radius:16px;padding:16px;margin:16px;background:var(--card)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+button,input{padding:10px 14px;border-radius:12px;border:1px solid var(--border);background:#222;color:#fff;font-size:15px}
+button.primary{background:var(--btn);border:none;font-weight:800}
+button:active{opacity:.85}
+input[type="number"]{width:80px;text-align:center}
+input[type="text"]{width:150px}
+.small{font-size:13px;color:var(--muted);margin:6px 0 0}
+table{width:100%;border-collapse:collapse;margin-top:12px}
+th,td{padding:10px;border-bottom:1px solid var(--border)}
+td.nameCell{cursor:pointer}
+tr.top{background:var(--red)}   /* TOP = RED */
+tr.low{background:var(--green)}/* LOW = GREEN */
+tr.out{opacity:.35}
+.history{font-size:13px;color:var(--muted);margin-top:10px;line-height:1.4}
+.pill{display:inline-block;padding:2px 8px;border:1px solid #666;border-radius:999px;font-size:12px;margin-inline-start:8px;opacity:.9;background:var(--chip)}
+.status{display:inline-block;padding:6px 10px;border:1px solid var(--border);border-radius:999px;background:var(--chip);font-size:12px;color:var(--muted)}
+.toggle{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:12px;background:var(--chip)}
+#err{display:none;white-space:pre-wrap;border:1px solid #b71c1c;background:#2a0000;color:#ffb4b4;border-radius:12px;padding:10px;margin-top:10px;font-size:12px}
 </style>
 </head>
-
 <body>
+
 <h1 id="title">🎮 Game Score</h1>
 
 <div class="card" id="setupCard">
@@ -69,7 +50,6 @@ tr.out{ opacity:.35; }
 </div>
 
 <div class="card" id="gameCard" style="display:none">
-
   <div class="row">
     <button id="btnAddRound">➕ Add Round</button>
     <button id="btnAddPlayer">👤 Add Player</button>
@@ -94,10 +74,13 @@ tr.out{ opacity:.35; }
       <span id="lblRoom">Room</span>
       <input id="roomInput" type="text" placeholder="majlis1" autocapitalize="none" autocomplete="off">
       <button id="btnSetRoom">Set</button>
+      <button id="btnShareRoom">Share</button>
     </div>
 
-    <div class="status" id="syncStatus">Local</div>
+    <span class="status" id="syncStatus">Local</span>
   </div>
+
+  <div id="err"></div>
 
   <table id="table">
     <thead>
@@ -113,11 +96,18 @@ tr.out{ opacity:.35; }
 </div>
 
 <script>
-/* =============================
-   Firebase (Realtime Database)
-   ============================= */
-// IMPORTANT: GitHub Pages needs CDN scripts (no "import").
-const FIREBASE_ENABLED = true; // keep true
+/* ======= Error box so we SEE the problem on iPhone ======= */
+const errBox = document.getElementById("err");
+function showErr(msg){
+  errBox.style.display = "block";
+  errBox.textContent = msg;
+}
+window.onerror = (m, src, line, col) => {
+  showErr("JS ERROR:\\n" + m + "\\n" + (src||"") + ":" + line + ":" + col);
+};
+
+/* ======= Firebase config (yours) ======= */
+const FIREBASE_ENABLED = true;
 const firebaseConfig = {
   apiKey: "AIzaSyC0twO6-07rT8NNwqVOlLDpwRIakjC122Y",
   authDomain: "ceck-21719.firebaseapp.com",
@@ -129,30 +119,19 @@ const firebaseConfig = {
   measurementId: "G-N68P7BHP86"
 };
 
-let firebaseReady = false;
-let firebaseDb = null;
+/* ======= App state ======= */
+const $ = (id)=>document.getElementById(id);
+const KEY="gameScore_live_safe_v1";
+const KEY_ROOM="gameScore_room_safe_v1";
+const KEY_CID="gameScore_cid_safe_v1";
 
-/* =============================
-   App State
-   ============================= */
-const KEY_LOCAL = "gameScore_v3_local";
-const KEY_ROOM  = "gameScore_room";
-const KEY_CID   = "gameScore_clientId";
-
-let clientId = localStorage.getItem(KEY_CID);
-if(!clientId){
-  clientId = Math.random().toString(36).slice(2) + Date.now().toString(36);
-  localStorage.setItem(KEY_CID, clientId);
-}
+let clientId = localStorage.getItem(KEY_CID) || ("c_"+Math.random().toString(36).slice(2)+Date.now().toString(36));
+localStorage.setItem(KEY_CID, clientId);
 
 let room = localStorage.getItem(KEY_ROOM) || "";
-let isApplyingRemote = false;
-let lastWriteTs = 0;
-let lastAppliedRemoteTs = 0;
-let roomListenerRef = null;
 
 let state = {
-  lang: "ar",
+  lang: "en",
   names: [],
   totals: [],
   out: [],
@@ -162,248 +141,65 @@ let state = {
 };
 
 const I18N = {
-  ar: {
-    title: "🎮 نقاط اللعبة",
-    players: "اللاعبين",
-    start: "ابدأ / لعبة جديدة",
-    lang: "اللغة",
-    tip: "ملاحظة: الحفظ تلقائيًا على الجهاز.",
-    addRound: "➕ إضافة جولة",
-    addPlayer: "👤 إضافة لاعب",
-    newGame: "🆕 لعبة جديدة",
-    setup: "⚙️ إعدادات",
-    reset: "🔄 تصفير",
-    kick: "الإقصاء عند",
-    hint: "يصبح اللاعب OUT عندما المجموع ≥ الهدف.",
-    thPlayer: "اللاعب",
-    thTotal: "المجموع",
-    editName: "تعديل الاسم",
-    pointsFor: "نقاط الجولة لـ",
-    out: "OUT",
-    round: "جولة",
-    confirmReset: "تصفير كل النقاط وإرجاع الجميع IN؟",
-    confirmNew: "بدء لعبة جديدة؟ (سيتم مسح الحالي)",
-    maxPlayers: "الحد الأقصى 10 لاعبين.",
-    double: "x2 مضاعفة النقاط",
-    room: "الغرفة",
-    set: "تعيين",
-    local: "محلي",
-    live: "مباشر",
-    firebaseFail: "⚠️ تعذر تحميل Firebase — التطبيق يعمل محليًا."
-  },
-  en: {
-    title: "🎮 Game Score",
-    players: "Players",
-    start: "Start / New Game",
-    lang: "Language",
-    tip: "Tip: This app auto-saves.",
-    addRound: "➕ Add Round",
-    addPlayer: "👤 Add Player",
-    newGame: "🆕 New Game",
-    setup: "⚙️ Setup",
-    reset: "🔄 Reset",
-    kick: "Kick-out at",
-    hint: "Players become OUT when total ≥ target.",
-    thPlayer: "Player",
-    thTotal: "Total",
-    editName: "Edit name",
-    pointsFor: "Round points for",
-    out: "OUT",
-    round: "Round",
-    confirmReset: "Reset all totals and set everyone IN?",
-    confirmNew: "Start a new game? (clears current)",
-    maxPlayers: "Max players is 10.",
-    double: "x2 Double scores",
-    room: "Room",
-    set: "Set",
-    local: "Local",
-    live: "Live",
-    firebaseFail: "⚠️ Firebase failed to load — app runs locally."
-  }
+  en:{title:"🎮 Game Score",players:"Players",start:"Start / New Game",lang:"Language",tip:"Tip: This app auto-saves.",
+      addRound:"➕ Add Round",addPlayer:"👤 Add Player",newGame:"🆕 New Game",setup:"⚙️ Setup",reset:"🔄 Reset",
+      kick:"Kick-out at",hint:"Players become OUT when total ≥ target.",thPlayer:"Player",thTotal:"Total",
+      editName:"Edit name",pointsFor:"Round points for",round:"Round",out:"OUT",maxPlayers:"Max players is 10.",
+      confirmReset:"Reset all totals and set everyone IN?",confirmNew:"Start a new game? (clears current)",
+      double:"x2 Double scores",room:"Room",set:"Set",share:"Share",local:"Local",live:"Live",roomFirst:"Set a Room first",copied:"Link copied"},
+  ar:{title:"🎮 نقاط اللعبة",players:"اللاعبين",start:"ابدأ / لعبة جديدة",lang:"اللغة",tip:"ملاحظة: الحفظ تلقائيًا على الجهاز.",
+      addRound:"➕ إضافة جولة",addPlayer:"👤 إضافة لاعب",newGame:"🆕 لعبة جديدة",setup:"⚙️ إعدادات",reset:"🔄 تصفير",
+      kick:"الإقصاء عند",hint:"يصبح اللاعب OUT عندما المجموع ≥ الهدف.",thPlayer:"اللاعب",thTotal:"المجموع",
+      editName:"تعديل الاسم",pointsFor:"نقاط الجولة لـ",round:"جولة",out:"OUT",maxPlayers:"الحد الأقصى 10 لاعبين.",
+      confirmReset:"تصفير كل النقاط وإرجاع الجميع IN؟",confirmNew:"بدء لعبة جديدة؟ (سيتم مسح الحالي)",
+      double:"x2 مضاعفة النقاط",room:"الغرفة",set:"تعيين",share:"مشاركة",local:"محلي",live:"مباشر",roomFirst:"حدد Room أولاً",copied:"تم نسخ الرابط"}
 };
+function t(k){ return (I18N[state.lang]||I18N.en)[k] || k; }
 
-function t(k){ return I18N[state.lang][k] || k; }
-function escapeHtml(s){
-  return String(s).replace(/[&<>"']/g, m => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
-}
-
-/* =============================
-   UI Text / Language
-   ============================= */
-function applyLang(){
-  document.documentElement.lang = state.lang;
-  document.documentElement.dir  = (state.lang === "ar") ? "rtl" : "ltr";
-
-  title.textContent      = t("title");
-  lblPlayers.textContent = t("players");
-  btnStart.textContent   = t("start");
-  lblLang.textContent    = t("lang");
-  tip.textContent        = t("tip");
-
-  btnAddRound.textContent  = t("addRound");
-  btnAddPlayer.textContent = t("addPlayer");
-  btnNewGame.textContent   = t("newGame");
-  btnGoSetup.textContent   = t("setup");
-  btnReset.textContent     = t("reset");
-
-  lblKick.textContent   = t("kick");
-  lblHint.textContent   = t("hint");
-  thPlayer.textContent  = t("thPlayer");
-  thTotal.textContent   = t("thTotal");
-
-  lblDouble.textContent = t("double");
-  lblRoom.textContent   = t("room");
-  btnSetRoom.textContent= t("set");
-
-  setSyncBadge();
-}
-
-function setSyncBadge(msg){
-  if(!room || !firebaseReady){
-    syncStatus.textContent = msg || t("local");
-  }else{
-    syncStatus.textContent = msg || t("live") + `: ${room}`;
-  }
-}
-
-/* =============================
-   Local Save/Load
-   ============================= */
 function saveLocal(){
-  state.target = Math.max(1, Math.floor(+target.value || 100));
-  state.double = !!doubleToggle.checked;
-  localStorage.setItem(KEY_LOCAL, JSON.stringify(state));
+  state.target = Math.max(1, Math.floor(Number($("target").value)||100));
+  state.double = !!$("doubleToggle").checked;
+  localStorage.setItem(KEY, JSON.stringify(state));
 }
-
 function loadLocal(){
   try{
-    const raw = localStorage.getItem(KEY_LOCAL);
-    if(!raw) return;
-    const s = JSON.parse(raw);
-    if(!s) return;
-    state = { ...state, ...s };
+    const raw = localStorage.getItem(KEY);
+    if(raw) state = {...state, ...JSON.parse(raw)};
   }catch{}
 }
-
-/* =============================
-   Firebase helpers (CDN)
-   ============================= */
-function loadScript(src){
-  return new Promise((resolve,reject)=>{
-    const s = document.createElement("script");
-    s.src = src;
-    s.async = true;
-    s.onload = resolve;
-    s.onerror = reject;
-    document.head.appendChild(s);
-  });
+function setSyncBadge(text){
+  $("syncStatus").textContent = text;
+}
+function applyLang(){
+  document.documentElement.lang = state.lang;
+  document.documentElement.dir  = (state.lang==="ar") ? "rtl" : "ltr";
+  $("title").textContent = t("title");
+  $("lblPlayers").textContent = t("players");
+  $("btnStart").textContent = t("start");
+  $("lblLang").textContent = t("lang");
+  $("tip").textContent = t("tip");
+  $("btnAddRound").textContent = t("addRound");
+  $("btnAddPlayer").textContent = t("addPlayer");
+  $("btnNewGame").textContent = t("newGame");
+  $("btnGoSetup").textContent = t("setup");
+  $("btnReset").textContent = t("reset");
+  $("lblKick").textContent = t("kick");
+  $("lblHint").textContent = t("hint");
+  $("thPlayer").textContent = t("thPlayer");
+  $("thTotal").textContent = t("thTotal");
+  $("lblDouble").textContent = t("double");
+  $("lblRoom").textContent = t("room");
+  $("btnSetRoom").textContent = t("set");
+  $("btnShareRoom").textContent = t("share");
+  setSyncBadge(room && firebaseReady ? `${t("live")}: ${room}` : t("local"));
 }
 
-async function ensureFirebase(){
-  if(!FIREBASE_ENABLED) return false;
-  if(firebaseReady && firebaseDb) return true;
-
-  try{
-    await loadScript("https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js");
-    await loadScript("https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js");
-
-    // init (compat)
-    if(!firebase.apps || firebase.apps.length === 0){
-      firebase.initializeApp(firebaseConfig);
-    }
-    firebaseDb = firebase.database();
-    firebaseReady = true;
-    return true;
-  }catch(e){
-    firebaseReady = false;
-    firebaseDb = null;
-    setSyncBadge(t("local"));
-    alert(t("firebaseFail"));
-    return false;
-  }
-}
-
-function roomStatePath(r){ return `rooms/${String(r).trim().toLowerCase()}/state`; }
-
-function writeRemote(){
-  if(isApplyingRemote) return;
-  if(!firebaseReady || !firebaseDb || !room) return;
-
-  const payload = {
-    ...state,
-    target: Math.max(1, Math.floor(+target.value || state.target || 100)),
-    double: !!doubleToggle.checked,
-    _ts: Date.now(),
-    _by: clientId
-  };
-
-  lastWriteTs = payload._ts;
-
-  firebaseDb.ref(roomStatePath(room)).set(payload).catch(()=>{});
-  setSyncBadge(t("live") + `: ${room}`);
-}
-
-function startRoomListener(){
-  if(!firebaseReady || !firebaseDb || !room) return;
-
-  // remove old
-  if(roomListenerRef){
-    roomListenerRef.off();
-    roomListenerRef = null;
-  }
-
-  const ref = firebaseDb.ref(roomStatePath(room));
-  roomListenerRef = ref;
-
-  ref.on("value", snap=>{
-    const remote = snap.val();
-    if(!remote) return;
-
-    // ignore our own latest write
-    if(remote._by === clientId && remote._ts && remote._ts <= lastWriteTs) return;
-
-    // ignore older remote updates
-    if(remote._ts && remote._ts <= lastAppliedRemoteTs) return;
-
-    lastAppliedRemoteTs = remote._ts || Date.now();
-
-    // apply
-    isApplyingRemote = true;
-    const { _ts, _by, ...clean } = remote;
-
-    // keep language local preference if remote missing
-    state = { ...state, ...clean };
-
-    // sync UI controls
-    target.value = state.target || 100;
-    doubleToggle.checked = !!state.double;
-
-    saveLocal();
-    render();
-    isApplyingRemote = false;
-
-    setSyncBadge(t("live") + `: ${room}`);
-  });
-
-  setSyncBadge(t("live") + `: ${room}`);
-}
-
-/* =============================
-   Game logic
-   ============================= */
-function showSetup(){
-  setupCard.style.display = "";
-  gameCard.style.display  = "none";
-  applyLang();
-}
-
+function showSetup(){ $("setupCard").style.display=""; $("gameCard").style.display="none"; }
 function showGame(){
-  setupCard.style.display = "none";
-  gameCard.style.display  = "";
-  target.value = state.target || 100;
-  doubleToggle.checked = !!state.double;
-  roomInput.value = room || "";
-  applyLang();
+  $("setupCard").style.display="none"; $("gameCard").style.display="";
+  $("target").value = state.target || 100;
+  $("doubleToggle").checked = !!state.double;
+  $("roomInput").value = room || "";
   render();
 }
 
@@ -412,230 +208,234 @@ function newGame(n){
   state.totals = Array(n).fill(0);
   state.out = Array(n).fill(false);
   state.history = [];
-  state.target = Math.max(1, Math.floor(+target.value || state.target || 100));
   saveLocal();
-  writeRemote();
 }
 
 function computeTopLow(){
   const inIdx = state.totals.map((_,i)=>i).filter(i=>!state.out[i]);
-  if(inIdx.length === 0) return { top:-1, low:-1, allEqual:true };
-
-  let top = inIdx[0], low = inIdx[0];
+  if(inIdx.length===0) return {top:-1,low:-1,allEqual:true};
+  let top=inIdx[0], low=inIdx[0];
   for(const i of inIdx){
-    if(state.totals[i] > state.totals[top]) top = i;
-    if(state.totals[i] < state.totals[low]) low = i;
+    if(state.totals[i] > state.totals[top]) top=i;
+    if(state.totals[i] < state.totals[low]) low=i;
   }
-  const allEqual = inIdx.every(i => state.totals[i] === state.totals[inIdx[0]]);
-  return { top, low, allEqual };
+  const allEqual = inIdx.every(i=>state.totals[i]===state.totals[inIdx[0]]);
+  return {top,low,allEqual};
 }
 
 function render(){
   const tbody = document.querySelector("#table tbody");
-  tbody.innerHTML = "";
-
-  const {top, low, allEqual}s = computeTopLow(); // typo guard? we'll do below properly
-}
-
-function render(){
-  const tbody = document.querySelector("#table tbody");
-  tbody.innerHTML = "";
-
-  const {top, low, allEqual} = computeTopLow();
+  tbody.innerHTML="";
+  const {top,low,allEqual}=computeTopLow();
 
   state.names.forEach((name,i)=>{
-    const tr = document.createElement("tr");
-
+    const tr=document.createElement("tr");
     if(state.out[i]) tr.classList.add("out");
-    if(!state.out[i] && !allEqual && i===top) tr.classList.add("top");   // TOP = RED
-    if(!state.out[i] && !allEqual && i===low) tr.classList.add("low");   // LOW = GREEN
+    if(!state.out[i] && !allEqual && i===top) tr.classList.add("top");
+    if(!state.out[i] && !allEqual && i===low) tr.classList.add("low");
 
-    const tdName = document.createElement("td");
-    tdName.className = "nameCell";
-    tdName.innerHTML = `${escapeHtml(name)}${state.out[i] ? ` <span class="pill">${t("out")}</span>` : ""}`;
-    tdName.onclick = ()=>editName(i);
+    const tdN=document.createElement("td");
+    tdN.className="nameCell";
+    tdN.innerHTML = name + (state.out[i]?` <span class="pill">${t("out")}</span>`:"");
+    tdN.onclick=()=>{ const v=prompt(t("editName"), state.names[i]); if(v!==null && v.trim()) {state.names[i]=v.trim(); saveLocal(); render(); writeRemoteDebounced(true);} };
 
-    const tdTotal = document.createElement("td");
-    tdTotal.textContent = String(state.totals[i]);
+    const tdT=document.createElement("td");
+    tdT.textContent=String(state.totals[i]);
 
-    tr.appendChild(tdName);
-    tr.appendChild(tdTotal);
-    tbody.appendChild(tr);
+    tr.appendChild(tdN); tr.appendChild(tdT); tbody.appendChild(tr);
   });
 
-  history.innerHTML = state.history.slice(0,12).map(h=>"• "+escapeHtml(h)).join("<br>");
+  $("history").innerHTML = state.history.slice(0,12).map(h=>"• "+h).join("<br>");
 }
 
-function editName(i){
-  const val = prompt(t("editName"), state.names[i]);
-  if(val === null) return;
-  const name = val.trim();
-  if(name) state.names[i] = name;
+/* ======= Firebase Live Share (loads ONLY after Set Room) ======= */
+let firebaseReady=false;
+let firebaseDb=null;
+let listenerRef=null;
+let lastAppliedTs=0;
+let writeTimer=null;
+
+function loadScript(src){
+  return new Promise((res, rej)=>{
+    const s=document.createElement("script");
+    s.src=src; s.async=true; s.onload=res; s.onerror=rej;
+    document.head.appendChild(s);
+  });
+}
+
+async function ensureFirebase(){
+  if(!FIREBASE_ENABLED) return false;
+  if(firebaseReady && firebaseDb) return true;
+  try{
+    await loadScript("https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js");
+    await loadScript("https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js");
+    if(!firebase.apps || firebase.apps.length===0) firebase.initializeApp(firebaseConfig);
+    firebaseDb = firebase.database();
+    firebaseReady=true;
+    return true;
+  }catch(e){
+    firebaseReady=false; firebaseDb=null;
+    showErr("Firebase blocked/failed to load. App still works locally.");
+    return false;
+  }
+}
+
+function cleanRoom(s){ return (s||"").trim().toLowerCase().replace(/[^a-z0-9_-]/g,"").slice(0,24); }
+function roomPath(r){ return `rooms/${r}/state`; }
+
+function attachListener(){
+  if(!firebaseReady || !firebaseDb || !room) return;
+  if(listenerRef){ listenerRef.off(); listenerRef=null; }
+  listenerRef = firebaseDb.ref(roomPath(room));
+  listenerRef.on("value", snap=>{
+    const remote = snap.val();
+    if(!remote || remote._by===clientId) return;
+    const ts = Number(remote._ts||0);
+    if(ts<=lastAppliedTs) return;
+    lastAppliedTs=ts;
+
+    state = { ...state, ...remote };
+    $("target").value = state.target || 100;
+    $("doubleToggle").checked = !!state.double;
+
+    saveLocal();
+    applyLang();
+    render();
+    setSyncBadge(`${t("live")}: ${room}`);
+  });
+  setSyncBadge(`${t("live")}: ${room}`);
+}
+
+function writeRemoteNow(){
+  if(!room || !firebaseReady || !firebaseDb) return;
+  const payload = {
+    lang: state.lang,
+    names: state.names,
+    totals: state.totals,
+    out: state.out,
+    history: state.history,
+    target: Math.max(1, Math.floor(Number($("target").value)||state.target||100)),
+    double: !!$("doubleToggle").checked,
+    _by: clientId,
+    _ts: Date.now()
+  };
+  firebaseDb.ref(roomPath(room)).set(payload).catch(()=>{});
+}
+
+function writeRemoteDebounced(){
+  clearTimeout(writeTimer);
+  writeTimer=setTimeout(writeRemoteNow, 250);
+}
+
+async function setRoom(){
+  const r = cleanRoom($("roomInput").value);
+  if(!r){ room=""; localStorage.removeItem(KEY_ROOM); setSyncBadge(t("local")); return; }
+  room=r; localStorage.setItem(KEY_ROOM, room);
+
+  const ok = await ensureFirebase();
+  if(!ok){ setSyncBadge(t("local")); return; }
+
+  attachListener();
+  writeRemoteNow(); // publish current state
+}
+
+async function shareRoom(){
+  if(!room) return alert(t("roomFirst"));
+  const url = new URL(location.href);
+  url.searchParams.set("room", room);
+  url.searchParams.set("lang", state.lang);
+  const link = url.toString();
+  if(navigator.share){
+    try{ await navigator.share({title:"Game Score", url:link, text:link}); }catch{}
+  }else{
+    try{ await navigator.clipboard.writeText(link); alert(t("copied")); }
+    catch{ prompt("Copy link", link); }
+  }
+}
+
+/* ======= Wire UI ======= */
+$("btnStart").onclick = () => {
+  const n = Math.max(2, Math.min(10, Math.floor(Number($("playersCount").value)||2)));
+  newGame(n);
+  for(let i=0;i<state.names.length;i++){
+    const v = prompt(`Name for ${state.names[i]}`, state.names[i]);
+    if(v===null) break;
+    if(v.trim()) state.names[i]=v.trim();
+  }
   saveLocal();
+  showGame();
   render();
-  writeRemote();
-}
+  writeRemoteDebounced();
+};
 
-function addPlayer(){
-  if(state.names.length >= 10) return alert(t("maxPlayers"));
-  const val = prompt(t("addPlayer"), `Player ${state.names.length+1}`);
-  if(val === null) return;
-  const name = val.trim() || `Player ${state.names.length+1}`;
-  state.names.push(name);
-  state.totals.push(0);
-  state.out.push(false);
-  saveLocal();
-  render();
-  writeRemote();
-}
-
-function addRound(){
+$("btnAddRound").onclick = () => {
   const inIdx = state.names.map((_,i)=>i).filter(i=>!state.out[i]);
-  if(inIdx.length === 0) return;
+  if(inIdx.length===0) return;
 
-  state.target = Math.max(1, Math.floor(+target.value || 100));
-  state.double = !!doubleToggle.checked;
+  state.target = Math.max(1, Math.floor(Number($("target").value)||100));
+  state.double = !!$("doubleToggle").checked;
+  const mult = state.double ? 2 : 1;
 
-  const changes = [];
+  const changes=[];
   for(const i of inIdx){
-    const v = prompt(`${t("pointsFor")} ${state.names[i]}`, "0");
-    if(v === null) return;
-
-    let pts = Number(v);
-    if(!Number.isFinite(pts)) pts = 0;
-
-    // ✅ Double option
-    if(state.double) pts = pts * 2;
-
+    const v = prompt(`${t("pointsFor")} ${state.names[i]}${mult===2?" (×2)":""}`, "0");
+    if(v===null) return;
+    let pts = Number(v); if(!Number.isFinite(pts)) pts=0;
+    pts *= mult;
     state.totals[i] += pts;
     changes.push(`${state.names[i]} +${pts}`);
-
-    if(state.totals[i] >= state.target) state.out[i] = true;
+    if(state.totals[i] >= state.target) state.out[i]=true;
   }
-
   state.history.unshift(`${t("round")}: ${changes.join(", ")}`);
-  saveLocal();
-  render();
-  writeRemote();
-}
+  saveLocal(); render(); writeRemoteDebounced();
+};
 
-function resetTotals(){
+$("btnAddPlayer").onclick = () => {
+  if(state.names.length>=10) return alert(t("maxPlayers"));
+  const v = prompt(t("addPlayer"), `Player ${state.names.length+1}`);
+  if(v===null) return;
+  state.names.push(v.trim()||`Player ${state.names.length+1}`);
+  state.totals.push(0);
+  state.out.push(false);
+  saveLocal(); render(); writeRemoteDebounced();
+};
+
+$("btnReset").onclick = () => {
   if(!confirm(t("confirmReset"))) return;
   state.totals = state.totals.map(()=>0);
   state.out = state.out.map(()=>false);
   state.history = [];
-  saveLocal();
-  render();
-  writeRemote();
-}
-
-function startFromSetup(){
-  const n = Math.max(2, Math.min(10, Math.floor(+playersCount.value || 2)));
-  newGame(n);
-
-  // optional: rename players quickly
-  for(let i=0;i<state.names.length;i++){
-    const v = prompt(`Name for ${state.names[i]}`, state.names[i]);
-    if(v === null) break;
-    const name = v.trim();
-    if(name) state.names[i] = name;
-  }
-
-  saveLocal();
-  showGame();
-  writeRemote();
-}
-
-function newGameButton(){
-  if(!confirm(t("confirmNew"))) return;
-  showSetup();
-}
-
-/* =============================
-   Room / Live Share
-   ============================= */
-async function setRoom(){
-  const r = (roomInput.value || "").trim();
-  if(!r){
-    room = "";
-    localStorage.removeItem(KEY_ROOM);
-    setSyncBadge(t("local"));
-    if(roomListenerRef){ roomListenerRef.off(); roomListenerRef=null; }
-    return;
-  }
-
-  room = r.toLowerCase();
-  localStorage.setItem(KEY_ROOM, room);
-
-  const ok = await ensureFirebase();
-  if(!ok){
-    setSyncBadge(t("local"));
-    return;
-  }
-
-  startRoomListener();
-
-  // if room is empty on server, publish current local state as initial
-  firebaseDb.ref(roomStatePath(room)).get().then(snap=>{
-    if(!snap.exists()){
-      writeRemote();
-    }
-  }).catch(()=>{});
-}
-
-/* =============================
-   Wire buttons
-   ============================= */
-btnStart.onclick = startFromSetup;
-btnAddRound.onclick = addRound;
-btnAddPlayer.onclick = addPlayer;
-btnReset.onclick = resetTotals;
-btnNewGame.onclick = newGameButton;
-btnGoSetup.onclick = showSetup;
-
-btnAR.onclick = ()=>{ state.lang="ar"; saveLocal(); applyLang(); render(); };
-btnEN.onclick = ()=>{ state.lang="en"; saveLocal(); applyLang(); render(); };
-
-target.onchange = ()=>{
-  state.target = Math.max(1, Math.floor(+target.value || 100));
-  // re-evaluate OUT based on new target
-  state.out = state.totals.map(x => x >= state.target);
-  saveLocal();
-  render();
-  writeRemote();
+  saveLocal(); render(); writeRemoteDebounced();
 };
 
-doubleToggle.onchange = ()=>{
-  state.double = !!doubleToggle.checked;
-  saveLocal();
-  writeRemote();
-};
+$("btnNewGame").onclick = () => { if(confirm(t("confirmNew"))) showSetup(); };
+$("btnGoSetup").onclick = showSetup;
 
-btnSetRoom.onclick = setRoom;
+$("btnAR").onclick = () => { state.lang="ar"; saveLocal(); applyLang(); render(); writeRemoteDebounced(); };
+$("btnEN").onclick = () => { state.lang="en"; saveLocal(); applyLang(); render(); writeRemoteDebounced(); };
 
-/* =============================
-   Boot
-   ============================= */
+$("target").onchange = () => { state.target=Math.max(1, Math.floor(Number($("target").value)||100)); state.out=state.totals.map(x=>x>=state.target); saveLocal(); render(); writeRemoteDebounced(); };
+$("doubleToggle").onchange = () => { state.double=!!$("doubleToggle").checked; saveLocal(); writeRemoteDebounced(); };
+
+$("btnSetRoom").onclick = setRoom;
+$("btnShareRoom").onclick = shareRoom;
+
+/* ======= Boot ======= */
 loadLocal();
+room = localStorage.getItem(KEY_ROOM) || room;
+
+try{
+  const sp = new URLSearchParams(location.search);
+  const r = cleanRoom(sp.get("room"));
+  const l = sp.get("lang");
+  if(l==="ar"||l==="en") state.lang=l;
+  if(r) room=r, localStorage.setItem(KEY_ROOM, room);
+}catch{}
+
 applyLang();
-
-if(state.names && state.names.length >= 2) showGame();
-else showSetup();
-
-roomInput.value = room || "";
-if(room){
-  // attempt live share automatically
-  ensureFirebase().then(ok=>{
-    if(ok){
-      startRoomListener();
-      setSyncBadge(t("live")+`: ${room}`);
-    }else{
-      setSyncBadge(t("local"));
-    }
-  });
-}else{
-  setSyncBadge(t("local"));
-}
+if(state.names && state.names.length>=2) showGame(); else showSetup();
+$("roomInput").value = room || "";
+setSyncBadge(t("local"));
 </script>
 </body>
 </html>
