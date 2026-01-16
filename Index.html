@@ -1,0 +1,317 @@
+// Game Score — Scriptable (2–10 players)
+// Tap buttons = action runs immediately (no swipe needed)
+// Includes: Top/Lowest highlight, Add Player, Auto-save, Kick-out adjustable target, Edit names, Themes, OUT greyed
+// OUT players stay visible (grey) and are skipped in rounds.
+
+const SAVE_FILE = "game_score_autosave_v4.json";
+const DEFAULT_TARGET = 100;
+const MAX_PLAYERS = 10;
+
+const fm = FileManager.local();
+const dir = fm.documentsDirectory();
+const path = fm.joinPath(dir, SAVE_FILE);
+
+// ---------- Themes (high contrast) ----------
+const THEMES = {
+  "Green/Red (High Contrast)": { topBg: "#B6F2C2", lowBg: "#F6B3B3", outBg: "#2B2B2B", outText: "#9A9A9A" },
+  "Blue/Orange":              { topBg: "#B7DBFF", lowBg: "#FFD6A6", outBg: "#2B2B2B", outText: "#9A9A9A" },
+  "Purple/Yellow":            { topBg: "#D8C7FF", lowBg: "#FFF0A6", outBg: "#2B2B2B", outText: "#9A9A9A" }
+};
+
+function saveGame(state) {
+  try { fm.writeString(path, JSON.stringify(state)); } catch (e) {}
+}
+function loadGame() {
+  try {
+    if (!fm.fileExists(path)) return null;
+    return JSON.parse(fm.readString(path));
+  } catch (e) { return null; }
+}
+function clearSave() {
+  try { if (fm.fileExists(path)) fm.remove(path); } catch (e) {}
+}
+
+// ---------- Helpers ----------
+async function alertMsg(title, msg) {
+  let a = new Alert();
+  a.title = title;
+  a.message = msg;
+  a.addAction("OK");
+  await a.present();
+}
+
+async function askNumber(title, msg, defVal) {
+  let a = new Alert();
+  a.title = title;
+  a.message = msg;
+  a.addTextField("Number", String(defVal));
+  a.addAction("OK");
+  a.addCancelAction("Cancel");
+  let r = await a.present();
+  if (r === -1) return null;
+  let n = Number(a.textFieldValue(0));
+  if (!Number.isFinite(n)) return null;
+  return n;
+}
+
+async function askText(title, msg, defVal) {
+  let a = new Alert();
+  a.title = title;
+  a.message = msg;
+  a.addTextField("Text", defVal);
+  a.addAction("OK");
+  a.addCancelAction("Cancel");
+  let r = await a.present();
+  if (r === -1) return null;
+  let t = (a.textFieldValue(0) || "").trim();
+  return t.length ? t : defVal;
+}
+
+async function askPoints(playerName) {
+  let a = new Alert();
+  a.title = playerName;
+  a.message = "Enter points for this round (adds to total)";
+  a.addTextField("Points", "0");
+  a.addAction("OK");
+  a.addCancelAction("Cancel");
+  let r = await a.present();
+  if (r === -1) return null;
+  return Number(a.textFieldValue(0)) || 0;
+}
+
+function computeMaxMinIndexes(totals, outFlags) {
+  let idx = [];
+  for (let i = 0; i < totals.length; i++) if (!outFlags[i]) idx.push(i);
+  if (idx.length === 0) return { maxI: -1, minI: -1, allEqual: true };
+
+  let maxI = idx[0], minI = idx[0];
+  for (let k = 1; k < idx.length; k++) {
+    let i = idx[k];
+    if (totals[i] > totals[maxI]) maxI = i;
+    if (totals[i] < totals[minI]) minI = i;
+  }
+  let allEqual = idx.every(i => totals[i] === totals[idx[0]]);
+  return { maxI, minI, allEqual };
+}
+
+// ---------- Start / Load ----------
+let state = loadGame();
+
+if (state && Array.isArray(state.names) && Array.isArray(state.totals) && Array.isArray(state.out)
+    && state.names.length === state.totals.length && state.names.length === state.out.length && state.names.length >= 1) {
+
+  if (!state.themeName || !THEMES[state.themeName]) state.themeName = "Green/Red (High Contrast)";
+  if (!Number.isFinite(state.targetScore) || state.targetScore < 1) state.targetScore = DEFAULT_TARGET;
+
+  let a = new Alert();
+  a.title = "Load saved game?";
+  a.message = `Saved game found (${state.names.length} player(s)).\nKick-out target: ${state.targetScore}`;
+  a.addAction("Load");
+  a.addAction("New Game");
+  a.addCancelAction("Cancel");
+  let r = await a.present();
+  if (r === -1) Script.complete();
+  if (r === 1) state = null;
+} else {
+  state = null;
+}
+
+if (!state) {
+  let n = await askNumber("New Game", "How many players? (2–10)", 2);
+  if (n === null || n < 2 || n > MAX_PLAYERS) {
+    await alertMsg("Error", "Players must be between 2 and 10.");
+    Script.complete();
+  }
+
+  let names = [];
+  for (let i = 0; i < n; i++) {
+    let name = await askText(`Player ${i + 1}`, "Enter name", `Player ${i + 1}`);
+    if (name === null) Script.complete();
+    names.push(name);
+  }
+
+  state = {
+    names,
+    totals: Array(n).fill(0),
+    out: Array(n).fill(false),
+    themeName: "Green/Red (High Contrast)",
+    targetScore: DEFAULT_TARGET
+  };
+  saveGame(state);
+}
+
+// ---------- Render function (rebuild rows + refresh) ----------
+function renderInto(table) {
+  table.removeAllRows();
+  table.showSeparators = true;
+
+  const theme = THEMES[state.themeName] || THEMES["Green/Red (High Contrast)"];
+
+  // Game over check
+  if (state.out.every(v => v === true)) {
+    // Still render header; actions can reset/new
+  }
+
+  let { maxI, minI, allEqual } = computeMaxMinIndexes(state.totals, state.out);
+
+  // Header
+  let header = new UITableRow();
+  header.addText("Player");
+  header.addText(`Total (OUT @ ${state.targetScore}+)`);
+  table.addRow(header);
+
+  // Players
+  for (let i = 0; i < state.names.length; i++) {
+    let row = new UITableRow();
+
+    const isOut = state.out[i] === true;
+    const isTop = (!allEqual && i === maxI);
+    const isLow = (!allEqual && i === minI);
+
+    if (isOut) row.backgroundColor = new Color(theme.outBg);
+    else if (isTop) row.backgroundColor = new Color(theme.topBg);
+    else if (isLow) row.backgroundColor = new Color(theme.lowBg);
+
+    let nameText = state.names[i] + (isOut ? " (OUT)" : isTop ? "  TOP" : isLow ? "  LOW" : "");
+    let nameCell = row.addText(nameText);
+    let totalCell = row.addText(String(state.totals[i]));
+
+    if (isOut) {
+      nameCell.textColor = new Color(theme.outText);
+      totalCell.textColor = new Color(theme.outText);
+    } else if (isTop || isLow) {
+      nameCell.textColor = Color.black();
+      totalCell.textColor = Color.black();
+    }
+
+    table.addRow(row);
+  }
+
+  // Buttons row 1
+  let btnRow1 = new UITableRow();
+  let bAddRound  = btnRow1.addButton("ADD ROUND");
+  let bAddPlayer = btnRow1.addButton("ADD PLAYER");
+  let bReset     = btnRow1.addButton("RESET");
+  table.addRow(btnRow1);
+
+  // Buttons row 2
+  let btnRow2 = new UITableRow();
+  let bEditNames = btnRow2.addButton("EDIT NAMES");
+  let bTarget    = btnRow2.addButton("TARGET");
+  let bTheme     = btnRow2.addButton("THEME");
+  table.addRow(btnRow2);
+
+  // High-contrast button text
+  [bAddRound,bAddPlayer,bReset,bEditNames,bTarget,bTheme].forEach(b => {
+    b.titleColor = Color.white();
+  });
+
+  // ---- Button actions RUN IMMEDIATELY ----
+  bAddRound.onTap = async () => {
+    if (state.out.every(v => v === true)) {
+      await alertMsg("Game Over", `Everyone is OUT (reached ${state.targetScore}+). Reset to play again.`);
+      return;
+    }
+
+    // Ask points only for IN players
+    for (let i = 0; i < state.names.length; i++) {
+      if (state.out[i]) continue;
+      let pts = await askPoints(state.names[i]);
+      if (pts === null) return; // cancel round
+      state.totals[i] += pts;
+      if (state.totals[i] >= state.targetScore) state.out[i] = true;
+    }
+    saveGame(state);
+    renderInto(table);
+    table.reload();
+  };
+
+  bAddPlayer.onTap = async () => {
+    if (state.names.length >= MAX_PLAYERS) {
+      await alertMsg("Max players reached", `You already have ${MAX_PLAYERS} players.`);
+      return;
+    }
+    let name = await askText("Add Player", "Enter player name", `Player ${state.names.length + 1}`);
+    if (name === null) return;
+
+    state.names.push(name);
+    state.totals.push(0);
+    state.out.push(false);
+    saveGame(state);
+
+    renderInto(table);
+    table.reload();
+  };
+
+  bEditNames.onTap = async () => {
+    for (let i = 0; i < state.names.length; i++) {
+      let name = await askText("Edit Name", `Player ${i + 1}`, state.names[i]);
+      if (name !== null) state.names[i] = name;
+    }
+    saveGame(state);
+    renderInto(table);
+    table.reload();
+  };
+
+  bTarget.onTap = async () => {
+    let newT = await askNumber("Kick-out Target", "OUT when total >= target\nEnter target (>=1):", state.targetScore);
+    if (newT === null) return;
+    newT = Math.floor(newT);
+    if (!Number.isFinite(newT) || newT < 1) {
+      await alertMsg("Error", "Target must be 1 or higher.");
+      return;
+    }
+    state.targetScore = newT;
+
+    // Re-evaluate OUT
+    for (let i = 0; i < state.totals.length; i++) {
+      state.out[i] = state.totals[i] >= state.targetScore;
+    }
+
+    saveGame(state);
+    renderInto(table);
+    table.reload();
+  };
+
+  bTheme.onTap = async () => {
+    let a = new Alert();
+    a.title = "Choose Theme";
+    a.message = "Pick highlight colors";
+    let keys = Object.keys(THEMES);
+    keys.forEach(k => a.addAction(k));
+    a.addCancelAction("Cancel");
+    let r = await a.present();
+    if (r === -1) return;
+
+    state.themeName = keys[r];
+    saveGame(state);
+
+    renderInto(table);
+    table.reload();
+  };
+
+  bReset.onTap = async () => {
+    let c = new Alert();
+    c.title = "Reset?";
+    c.message = "Reset ALL totals to 0 and set everyone IN (names stay).";
+    c.addAction("Reset");
+    c.addCancelAction("Cancel");
+    let rr = await c.present();
+    if (rr === -1) return;
+
+    state.totals = Array(state.names.length).fill(0);
+    state.out = Array(state.names.length).fill(false);
+    saveGame(state);
+
+    renderInto(table);
+    table.reload();
+  };
+}
+
+// ---------- Main loop ----------
+while (true) {
+  let table = new UITable();
+  renderInto(table);
+  await table.present(false);
+  // If user closes table, just loop and show again (state is saved anyway).
+}
