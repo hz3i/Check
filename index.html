@@ -2,440 +2,1096 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Game Score</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>CHECK</title>
+
 <style>
-:root{color-scheme:dark;--bg:#000;--card:#111;--border:#333;--btn:#1e88e5;--red:#c62828;--green:#2e7d32;--muted:#aaa;--chip:#151515}
-body{margin:0;font-family:system-ui,-apple-system;background:var(--bg);color:#fff}
-h1{margin:16px}
-.card{border:1px solid var(--border);border-radius:16px;padding:16px;margin:16px;background:var(--card)}
-.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-button,input{padding:10px 14px;border-radius:12px;border:1px solid var(--border);background:#222;color:#fff;font-size:15px}
-button.primary{background:var(--btn);border:none;font-weight:800}
-button:active{opacity:.85}
-input[type="number"]{width:80px;text-align:center}
-input[type="text"]{width:150px}
-.small{font-size:13px;color:var(--muted);margin:6px 0 0}
-table{width:100%;border-collapse:collapse;margin-top:12px}
-th,td{padding:10px;border-bottom:1px solid var(--border)}
-td.nameCell{cursor:pointer}
-tr.top{background:var(--red)}   /* TOP = RED */
-tr.low{background:var(--green)}/* LOW = GREEN */
-tr.out{opacity:.35}
-.history{font-size:13px;color:var(--muted);margin-top:10px;line-height:1.4}
-.pill{display:inline-block;padding:2px 8px;border:1px solid #666;border-radius:999px;font-size:12px;margin-inline-start:8px;opacity:.9;background:var(--chip)}
-.status{display:inline-block;padding:6px 10px;border:1px solid var(--border);border-radius:999px;background:var(--chip);font-size:12px;color:var(--muted)}
-.toggle{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:12px;background:var(--chip)}
-#err{display:none;white-space:pre-wrap;border:1px solid #b71c1c;background:#2a0000;color:#ffb4b4;border-radius:12px;padding:10px;margin-top:10px;font-size:12px}
+:root{
+  color-scheme: dark;
+  --bg: #07070A;
+  --card: rgba(255,255,255,.06);
+  --card2: rgba(255,255,255,.08);
+  --border: rgba(255,255,255,.12);
+  --text: #FFFFFF;
+  --muted: rgba(255,255,255,.72);
+  --muted2: rgba(255,255,255,.55);
+
+  --primary: #4DA3FF;
+  --primary2:#2C7DFF;
+  --good: #32D583;
+  --warn: #FFD166;
+
+  --topRed: #E5484D;     /* TOP */
+  --lowGreen: #2ECC71;   /* LOW */
+
+  --shadow: 0 14px 40px rgba(0,0,0,.45);
+  --radius: 18px;
+  --radius2: 14px;
+}
+
+*{ box-sizing:border-box; }
+html,body{ height:100%; }
+body{
+  margin:0;
+  font-family: ui-rounded, system-ui, -apple-system, "SF Pro Rounded", "SF Pro Display";
+  background:
+    radial-gradient(1200px 700px at 20% 0%, rgba(77,163,255,.22), transparent 55%),
+    radial-gradient(900px 600px at 90% 15%, rgba(50,213,131,.18), transparent 55%),
+    radial-gradient(900px 600px at 50% 100%, rgba(255,209,102,.12), transparent 55%),
+    var(--bg);
+  color: var(--text);
+}
+
+.container{
+  max-width: 740px;
+  margin: 0 auto;
+  padding: 14px 14px 28px;
+}
+
+.header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  padding: 10px 4px 2px;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.logo{
+  width:42px;height:42px;border-radius:14px;
+  background: linear-gradient(135deg, rgba(77,163,255,.95), rgba(50,213,131,.9));
+  box-shadow: var(--shadow);
+  display:grid; place-items:center;
+  font-weight:1000;
+}
+.logo span{ filter: drop-shadow(0 6px 10px rgba(0,0,0,.35)); }
+.brandText{
+  display:flex; flex-direction:column; line-height:1.05;
+}
+.brandText .title{
+  font-size:18px; font-weight:1000; letter-spacing:1px;
+}
+.brandText .sub{
+  font-size:12px; color:var(--muted2);
+}
+
+.pills{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+.pill{
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,.05);
+  border-radius: 999px;
+  font-size: 12px;
+  color: var(--muted);
+  backdrop-filter: blur(8px);
+}
+.pill strong{ color: var(--text); }
+
+.card{
+  border:1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  box-shadow: var(--shadow);
+  padding: 14px;
+  margin-top: 12px;
+  backdrop-filter: blur(10px);
+}
+
+.row{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+
+label.small{
+  font-size:12px;
+  color: var(--muted2);
+}
+
+input, button{
+  border-radius: var(--radius2);
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,.06);
+  color: var(--text);
+  padding: 12px 14px;
+  font-size: 15px;
+  outline:none;
+}
+
+input[type="number"]{ width:92px; text-align:center; }
+input[type="text"]{ width:160px; }
+button{
+  cursor:pointer;
+  font-weight:800;
+  letter-spacing:.2px;
+  box-shadow: 0 10px 24px rgba(0,0,0,.18);
+}
+button:active{ transform: translateY(1px); opacity:.9; }
+
+button.primary{
+  border:none;
+  background: linear-gradient(135deg, var(--primary), var(--primary2));
+}
+button.ghost{
+  background: rgba(255,255,255,.05);
+}
+button.good{
+  border:none;
+  background: linear-gradient(135deg, rgba(50,213,131,.95), rgba(30,170,120,.95));
+}
+button.warn{
+  border:none;
+  color:#111;
+  background: linear-gradient(135deg, rgba(255,209,102,.95), rgba(255,179,0,.95));
+}
+
+.helper{
+  font-size:12px;
+  color: var(--muted2);
+  margin-top: 8px;
+}
+
+table{
+  width:100%;
+  border-collapse: separate;
+  border-spacing: 0 10px;
+  margin-top: 10px;
+}
+thead th{
+  text-align:start;
+  font-size:12px;
+  color: var(--muted2);
+  font-weight:900;
+  padding: 0 10px;
+}
+tbody tr{
+  background: rgba(255,255,255,.06);
+  border: 1px solid var(--border);
+  overflow:hidden;
+}
+tbody tr td{
+  padding: 12px 12px;
+}
+tbody tr td:first-child{
+  border-top-left-radius: 14px;
+  border-bottom-left-radius: 14px;
+}
+tbody tr td:last-child{
+  border-top-right-radius: 14px;
+  border-bottom-right-radius: 14px;
+  text-align:end;
+  font-weight:1000;
+}
+tbody tr.top{ background: rgba(229,72,77,.25); border:1px solid rgba(229,72,77,.35); }
+tbody tr.low{ background: rgba(46,204,113,.22); border:1px solid rgba(46,204,113,.32); }
+tbody tr.out{ opacity:.35; }
+
+.nameCell{ cursor:pointer; }
+.tag{
+  display:inline-block;
+  padding: 2px 8px;
+  margin-inline-start: 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  background: rgba(0,0,0,.15);
+}
+
+.history{
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,.18);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+hr.sep{
+  border:0;
+  border-top:1px solid var(--border);
+  margin: 12px 0;
+}
+
+/* Splash */
+#splash{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:9998;
+  background: rgba(0,0,0,.55);
+  backdrop-filter: blur(10px);
+}
+#splash .box{
+  max-width: 520px;
+  margin: 18vh auto;
+  padding: 18px;
+  border-radius: 22px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,.08);
+  box-shadow: var(--shadow);
+  text-align:center;
+}
+#splash .big{
+  font-size: 52px;
+  font-weight: 1100;
+  letter-spacing: 2px;
+  background: linear-gradient(135deg, rgba(77,163,255,.95), rgba(50,213,131,.95));
+  -webkit-background-clip:text;
+  background-clip:text;
+  color: transparent;
+}
+#splash .tiny{
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* Score Modal + Keypad */
+#scoreModal{ display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,.70); backdrop-filter: blur(10px); }
+#scoreModal .panel{
+  max-width: 560px;
+  margin: 8vh auto;
+  padding: 16px;
+  border-radius: 22px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,.08);
+  box-shadow: var(--shadow);
+}
+#scoreModal .topline{
+  display:flex; justify-content:space-between; align-items:center; gap:10px;
+}
+#scoreModal .pname{ font-size: 18px; font-weight: 1100; }
+#scoreModal .pinfo{ font-size: 12px; color: var(--muted2); margin-top:4px; }
+#scoreModal .roundBadge{
+  font-size: 12px; color: var(--muted);
+  border: 1px solid var(--border);
+  padding: 8px 10px;
+  border-radius: 999px;
+  background: rgba(0,0,0,.18);
+}
+#scoreModal .scoreRow{
+  margin-top: 14px;
+  display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+}
+#scoreModal #mPoints{
+  flex:1;
+  font-size: 38px;
+  font-weight: 1200;
+  text-align:center;
+  background: rgba(0,0,0,.25);
+}
+#scoreModal #mX2{
+  min-width: 120px;
+}
+#scoreModal #mX2.on{
+  border:none;
+  background: linear-gradient(135deg, rgba(50,213,131,.95), rgba(30,170,120,.95));
+}
+#scoreModal .kpGrid{
+  margin-top: 14px;
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+#scoreModal .kp{
+  padding: 14px 12px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,.18);
+  font-size: 22px;
+  font-weight: 1100;
+}
+#scoreModal .kp:active{ transform: translateY(1px); opacity:.9; }
+#scoreModal .actions{
+  margin-top: 14px;
+  display:flex; gap:10px; flex-wrap:wrap;
+}
+#scoreModal .actions button{ flex: 1; }
+#scoreModal .actions button.secondary{ flex: unset; }
 </style>
 </head>
+
 <body>
+<div class="container">
 
-<h1 id="title">🎮 Game Score</h1>
+  <div class="header">
+    <div class="brand">
+      <div class="logo"><span>✓</span></div>
+      <div class="brandText">
+        <div class="title">CHECK</div>
+        <div class="sub" id="brandSub">Scoreboard</div>
+      </div>
+    </div>
 
-<div class="card" id="setupCard">
-  <div class="row">
-    <span id="lblPlayers">Players</span>
-    <input id="playersCount" type="number" min="2" max="10" value="2">
-    <button class="primary" id="btnStart">Start / New Game</button>
+    <div class="pills">
+      <div class="pill" id="pillMode"><strong>Local</strong></div>
+      <div class="pill" id="pillRoom">Room: <strong>—</strong></div>
+    </div>
   </div>
 
-  <div class="row" style="margin-top:10px">
-    <span id="lblLang">Language</span>
-    <button id="btnAR">AR</button>
-    <button id="btnEN">EN</button>
+  <div class="card" id="setupCard">
+    <div class="row">
+      <div style="flex:1; min-width:200px">
+        <label class="small" id="lblPlayers">Players</label><br>
+        <input id="playersCount" type="number" min="2" max="10" value="2">
+      </div>
+      <button class="primary" id="btnStart" style="flex:1; min-width:220px;">Start / New Game</button>
+    </div>
+
+    <hr class="sep">
+
+    <div class="row">
+      <label class="small" id="lblLang">Language</label>
+      <button class="ghost" id="btnAR">AR</button>
+      <button class="ghost" id="btnEN">EN</button>
+    </div>
+
+    <div class="helper" id="tip">
+      Tip: This app auto-saves. Set a Room to play live with friends.
+    </div>
   </div>
 
-  <p class="small" id="tip">Tip: This app auto-saves.</p>
+  <div class="card" id="gameCard" style="display:none">
+    <div class="row">
+      <button class="primary" id="btnAddRound">➕ Add Round</button>
+      <button class="ghost" id="btnAddPlayer">👤 Add Player</button>
+      <button class="ghost" id="btnReset">🔄 Reset</button>
+      <button class="ghost" id="btnGoSetup">⚙️ Setup</button>
+      <button class="ghost" id="btnNewGame">🆕 New Game</button>
+    </div>
+
+    <hr class="sep">
+
+    <div class="row">
+      <div style="flex:1; min-width:220px">
+        <label class="small" id="lblKick">Kick-out at</label><br>
+        <input id="target" type="number" min="1" value="100">
+        <div class="helper" id="lblHint">Players become OUT when total ≥ target.</div>
+      </div>
+
+      <div style="flex:1; min-width:260px">
+        <label class="small" id="lblRoom">Room</label><br>
+        <div class="row">
+          <input id="roomInput" type="text" placeholder="majlis1" autocapitalize="none" autocomplete="off">
+          <button class="good" id="btnSetRoom">Set</button>
+          <button class="ghost" id="btnShareRoom">Share</button>
+        </div>
+        <div class="helper" id="roomHelp">Use the same Room to sync with friends.</div>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th id="thPlayer">Player</th>
+          <th id="thTotal">Total</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+
+    <div class="history" id="history"></div>
+  </div>
+
 </div>
 
-<div class="card" id="gameCard" style="display:none">
-  <div class="row">
-    <button id="btnAddRound">➕ Add Round</button>
-    <button id="btnAddPlayer">👤 Add Player</button>
-    <button id="btnNewGame" class="primary">🆕 New Game</button>
-    <button id="btnGoSetup">⚙️ Setup</button>
-    <button id="btnReset">🔄 Reset</button>
+<!-- Splash -->
+<div id="splash">
+  <div class="box">
+    <div class="big">CHECK</div>
+    <div class="tiny" id="splashText">Let’s play ✨</div>
   </div>
+</div>
 
-  <div class="row" style="margin-top:10px">
-    <span id="lblKick">Kick-out at</span>
-    <input id="target" type="number" min="1" value="100">
-    <span class="small" id="lblHint">Players become OUT when total ≥ target.</span>
-  </div>
-
-  <div class="row" style="margin-top:10px">
-    <div class="toggle">
-      <input id="doubleToggle" type="checkbox">
-      <label id="lblDouble" for="doubleToggle" style="cursor:pointer">x2 Double scores</label>
+<!-- Score Modal (No Keyboard) -->
+<div id="scoreModal">
+  <div class="panel">
+    <div class="topline">
+      <div>
+        <div class="pname" id="mPlayer"></div>
+        <div class="pinfo" id="mInfo"></div>
+      </div>
+      <div class="roundBadge" id="mRound"></div>
     </div>
 
-    <div class="toggle">
-      <span id="lblRoom">Room</span>
-      <input id="roomInput" type="text" placeholder="majlis1" autocapitalize="none" autocomplete="off">
-      <button id="btnSetRoom">Set</button>
-      <button id="btnShareRoom">Share</button>
+    <div class="scoreRow">
+      <input id="mPoints" readonly value="0" />
+      <button class="warn" id="mX2">×2 OFF</button>
     </div>
 
-    <span class="status" id="syncStatus">Local</span>
+    <div class="kpGrid" id="mKeypad">
+      <button class="kp" data-k="1">1</button>
+      <button class="kp" data-k="2">2</button>
+      <button class="kp" data-k="3">3</button>
+      <button class="kp" data-k="4">4</button>
+      <button class="kp" data-k="5">5</button>
+      <button class="kp" data-k="6">6</button>
+      <button class="kp" data-k="7">7</button>
+      <button class="kp" data-k="8">8</button>
+      <button class="kp" data-k="9">9</button>
+      <button class="kp" data-k="clear">C</button>
+      <button class="kp" data-k="0">0</button>
+      <button class="kp" data-k="back">⌫</button>
+    </div>
+
+    <div class="actions">
+      <button class="primary" id="mNext">Next</button>
+      <button class="ghost secondary" id="mSkip">Skip</button>
+      <button class="ghost secondary" id="mCancel">Cancel</button>
+    </div>
   </div>
-
-  <div id="err"></div>
-
-  <table id="table">
-    <thead>
-      <tr>
-        <th id="thPlayer">Player</th>
-        <th id="thTotal">Total</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-
-  <div class="history" id="history"></div>
 </div>
 
 <script>
-/* ======= Error box so we SEE the problem on iPhone ======= */
-const errBox = document.getElementById("err");
-function showErr(msg){
-  errBox.style.display = "block";
-  errBox.textContent = msg;
-}
-window.onerror = (m, src, line, col) => {
-  showErr("JS ERROR:\\n" + m + "\\n" + (src||"") + ":" + line + ":" + col);
-};
+(() => {
+  "use strict";
 
-/* ======= Firebase config (yours) ======= */
-const FIREBASE_ENABLED = true;
-const firebaseConfig = {
-  apiKey: "AIzaSyC0twO6-07rT8NNwqVOlLDpwRIakjC122Y",
-  authDomain: "ceck-21719.firebaseapp.com",
-  databaseURL: "https://ceck-21719-default-rtdb.firebaseio.com",
-  projectId: "ceck-21719",
-  storageBucket: "ceck-21719.firebasestorage.app",
-  messagingSenderId: "747335920443",
-  appId: "1:747335920443:web:d65ff3f8ed4b801e3a651e",
-  measurementId: "G-N68P7BHP86"
-};
+  /* ===== Firebase (your config) ===== */
+  const FIREBASE_ENABLED = true;
+  const firebaseConfig = {
+    apiKey: "AIzaSyC0twO6-07rT8NNwqVOlLDpwRIakjC122Y",
+    authDomain: "ceck-21719.firebaseapp.com",
+    databaseURL: "https://ceck-21719-default-rtdb.firebaseio.com",
+    projectId: "ceck-21719",
+    storageBucket: "ceck-21719.firebasestorage.app",
+    messagingSenderId: "747335920443",
+    appId: "1:747335920443:web:d65ff3f8ed4b801e3a651e",
+    measurementId: "G-N68P7BHP86"
+  };
 
-/* ======= App state ======= */
-const $ = (id)=>document.getElementById(id);
-const KEY="gameScore_live_safe_v1";
-const KEY_ROOM="gameScore_room_safe_v1";
-const KEY_CID="gameScore_cid_safe_v1";
+  /* ===== DOM ===== */
+  const $ = (id) => document.getElementById(id);
 
-let clientId = localStorage.getItem(KEY_CID) || ("c_"+Math.random().toString(36).slice(2)+Date.now().toString(36));
-localStorage.setItem(KEY_CID, clientId);
+  const el = {
+    setupCard: $("setupCard"),
+    gameCard: $("gameCard"),
+    playersCount: $("playersCount"),
+    btnStart: $("btnStart"),
+    btnAR: $("btnAR"),
+    btnEN: $("btnEN"),
 
-let room = localStorage.getItem(KEY_ROOM) || "";
+    btnAddRound: $("btnAddRound"),
+    btnAddPlayer: $("btnAddPlayer"),
+    btnReset: $("btnReset"),
+    btnGoSetup: $("btnGoSetup"),
+    btnNewGame: $("btnNewGame"),
 
-let state = {
-  lang: "en",
-  names: [],
-  totals: [],
-  out: [],
-  history: [],
-  target: 100,
-  double: false
-};
+    target: $("target"),
+    roomInput: $("roomInput"),
+    btnSetRoom: $("btnSetRoom"),
+    btnShareRoom: $("btnShareRoom"),
 
-const I18N = {
-  en:{title:"🎮 Game Score",players:"Players",start:"Start / New Game",lang:"Language",tip:"Tip: This app auto-saves.",
-      addRound:"➕ Add Round",addPlayer:"👤 Add Player",newGame:"🆕 New Game",setup:"⚙️ Setup",reset:"🔄 Reset",
-      kick:"Kick-out at",hint:"Players become OUT when total ≥ target.",thPlayer:"Player",thTotal:"Total",
-      editName:"Edit name",pointsFor:"Round points for",round:"Round",out:"OUT",maxPlayers:"Max players is 10.",
-      confirmReset:"Reset all totals and set everyone IN?",confirmNew:"Start a new game? (clears current)",
-      double:"x2 Double scores",room:"Room",set:"Set",share:"Share",local:"Local",live:"Live",roomFirst:"Set a Room first",copied:"Link copied"},
-  ar:{title:"🎮 نقاط اللعبة",players:"اللاعبين",start:"ابدأ / لعبة جديدة",lang:"اللغة",tip:"ملاحظة: الحفظ تلقائيًا على الجهاز.",
-      addRound:"➕ إضافة جولة",addPlayer:"👤 إضافة لاعب",newGame:"🆕 لعبة جديدة",setup:"⚙️ إعدادات",reset:"🔄 تصفير",
-      kick:"الإقصاء عند",hint:"يصبح اللاعب OUT عندما المجموع ≥ الهدف.",thPlayer:"اللاعب",thTotal:"المجموع",
-      editName:"تعديل الاسم",pointsFor:"نقاط الجولة لـ",round:"جولة",out:"OUT",maxPlayers:"الحد الأقصى 10 لاعبين.",
-      confirmReset:"تصفير كل النقاط وإرجاع الجميع IN؟",confirmNew:"بدء لعبة جديدة؟ (سيتم مسح الحالي)",
-      double:"x2 مضاعفة النقاط",room:"الغرفة",set:"تعيين",share:"مشاركة",local:"محلي",live:"مباشر",roomFirst:"حدد Room أولاً",copied:"تم نسخ الرابط"}
-};
-function t(k){ return (I18N[state.lang]||I18N.en)[k] || k; }
+    tbody: $("tbody"),
+    history: $("history"),
 
-function saveLocal(){
-  state.target = Math.max(1, Math.floor(Number($("target").value)||100));
-  state.double = !!$("doubleToggle").checked;
-  localStorage.setItem(KEY, JSON.stringify(state));
-}
-function loadLocal(){
-  try{
-    const raw = localStorage.getItem(KEY);
-    if(raw) state = {...state, ...JSON.parse(raw)};
-  }catch{}
-}
-function setSyncBadge(text){
-  $("syncStatus").textContent = text;
-}
-function applyLang(){
-  document.documentElement.lang = state.lang;
-  document.documentElement.dir  = (state.lang==="ar") ? "rtl" : "ltr";
-  $("title").textContent = t("title");
-  $("lblPlayers").textContent = t("players");
-  $("btnStart").textContent = t("start");
-  $("lblLang").textContent = t("lang");
-  $("tip").textContent = t("tip");
-  $("btnAddRound").textContent = t("addRound");
-  $("btnAddPlayer").textContent = t("addPlayer");
-  $("btnNewGame").textContent = t("newGame");
-  $("btnGoSetup").textContent = t("setup");
-  $("btnReset").textContent = t("reset");
-  $("lblKick").textContent = t("kick");
-  $("lblHint").textContent = t("hint");
-  $("thPlayer").textContent = t("thPlayer");
-  $("thTotal").textContent = t("thTotal");
-  $("lblDouble").textContent = t("double");
-  $("lblRoom").textContent = t("room");
-  $("btnSetRoom").textContent = t("set");
-  $("btnShareRoom").textContent = t("share");
-  setSyncBadge(room && firebaseReady ? `${t("live")}: ${room}` : t("local"));
-}
+    pillMode: $("pillMode"),
+    pillRoom: $("pillRoom"),
 
-function showSetup(){ $("setupCard").style.display=""; $("gameCard").style.display="none"; }
-function showGame(){
-  $("setupCard").style.display="none"; $("gameCard").style.display="";
-  $("target").value = state.target || 100;
-  $("doubleToggle").checked = !!state.double;
-  $("roomInput").value = room || "";
-  render();
-}
+    brandSub: $("brandSub"),
 
-function newGame(n){
-  state.names = Array.from({length:n}, (_,i)=>`Player ${i+1}`);
-  state.totals = Array(n).fill(0);
-  state.out = Array(n).fill(false);
-  state.history = [];
-  saveLocal();
-}
+    lblPlayers: $("lblPlayers"),
+    lblLang: $("lblLang"),
+    tip: $("tip"),
+    lblKick: $("lblKick"),
+    lblHint: $("lblHint"),
+    lblRoom: $("lblRoom"),
+    roomHelp: $("roomHelp"),
+    thPlayer: $("thPlayer"),
+    thTotal: $("thTotal"),
 
-function computeTopLow(){
-  const inIdx = state.totals.map((_,i)=>i).filter(i=>!state.out[i]);
-  if(inIdx.length===0) return {top:-1,low:-1,allEqual:true};
-  let top=inIdx[0], low=inIdx[0];
-  for(const i of inIdx){
-    if(state.totals[i] > state.totals[top]) top=i;
-    if(state.totals[i] < state.totals[low]) low=i;
+    splash: $("splash"),
+    splashText: $("splashText"),
+
+    // modal
+    scoreModal: $("scoreModal"),
+    mPlayer: $("mPlayer"),
+    mInfo: $("mInfo"),
+    mRound: $("mRound"),
+    mPoints: $("mPoints"),
+    mX2: $("mX2"),
+    mKeypad: $("mKeypad"),
+    mNext: $("mNext"),
+    mSkip: $("mSkip"),
+    mCancel: $("mCancel")
+  };
+
+  /* ===== i18n ===== */
+  const I18N = {
+    ar: {
+      brandSub: "لوحة النقاط",
+      setupTip: "الحفظ تلقائيًا. حدّد Room للعب المباشر مع أصدقائك.",
+      players: "اللاعبين",
+      start: "ابدأ اللعبة",
+      lang: "اللغة",
+      kick: "الإقصاء عند",
+      hint: "يصبح اللاعب OUT عندما المجموع ≥ الهدف.",
+      room: "Room",
+      roomHelp: "استخدم نفس الغرفة للمزامنة مع أصدقائك.",
+      set: "Set",
+      share: "Share",
+      addRound: "➕ جولة",
+      addPlayer: "👤 لاعب",
+      reset: "🔄 تصفير",
+      setup: "⚙️ إعدادات",
+      newGame: "🆕 لعبة جديدة",
+      thPlayer: "اللاعب",
+      thTotal: "المجموع",
+      out: "OUT",
+      editName: "تعديل الاسم",
+      maxPlayers: "الحد الأقصى 10 لاعبين.",
+      confirmReset: "تصفير كل النقاط وإرجاع الجميع IN؟",
+      confirmNew: "بدء لعبة جديدة؟ (سيتم مسح الحالي)",
+      splash: "Let’s play ✨",
+      local: "Local",
+      live: "Live",
+      setRoomFirst: "اكتب Room أولاً",
+      copied: "تم نسخ الرابط",
+      modalNext: "التالي",
+      modalSkip: "تخطي",
+      modalCancel: "إلغاء",
+      modalRound: "جولة",
+      modalTotal: "مجموعه الحالي",
+    },
+    en: {
+      brandSub: "Scoreboard",
+      setupTip: "Auto-save is on. Set a Room to play live with friends.",
+      players: "Players",
+      start: "Start Game",
+      lang: "Language",
+      kick: "Kick-out at",
+      hint: "Players become OUT when total ≥ target.",
+      room: "Room",
+      roomHelp: "Use the same room to sync with friends.",
+      set: "Set",
+      share: "Share",
+      addRound: "➕ Add Round",
+      addPlayer: "👤 Add Player",
+      reset: "🔄 Reset",
+      setup: "⚙️ Setup",
+      newGame: "🆕 New Game",
+      thPlayer: "Player",
+      thTotal: "Total",
+      out: "OUT",
+      editName: "Edit name",
+      maxPlayers: "Max players is 10.",
+      confirmReset: "Reset all totals and set everyone IN?",
+      confirmNew: "Start a new game? (clears current)",
+      splash: "Let’s play ✨",
+      local: "Local",
+      live: "Live",
+      setRoomFirst: "Enter a room first",
+      copied: "Link copied",
+      modalNext: "Next",
+      modalSkip: "Skip",
+      modalCancel: "Cancel",
+      modalRound: "Round",
+      modalTotal: "Current total",
+    }
+  };
+
+  /* ===== Storage ===== */
+  const KEY = "check_app_v1_state";
+  const KEY_ROOM = "check_app_v1_room";
+  const KEY_CID = "check_app_v1_client";
+  let clientId = localStorage.getItem(KEY_CID);
+  if(!clientId){
+    clientId = "c_" + Math.random().toString(36).slice(2) + Date.now().toString(36);
+    localStorage.setItem(KEY_CID, clientId);
   }
-  const allEqual = inIdx.every(i=>state.totals[i]===state.totals[inIdx[0]]);
-  return {top,low,allEqual};
-}
 
-function render(){
-  const tbody = document.querySelector("#table tbody");
-  tbody.innerHTML="";
-  const {top,low,allEqual}=computeTopLow();
+  let room = localStorage.getItem(KEY_ROOM) || "";
 
-  state.names.forEach((name,i)=>{
-    const tr=document.createElement("tr");
-    if(state.out[i]) tr.classList.add("out");
-    if(!state.out[i] && !allEqual && i===top) tr.classList.add("top");
-    if(!state.out[i] && !allEqual && i===low) tr.classList.add("low");
+  let state = {
+    lang: "en",
+    names: [],
+    totals: [],
+    out: [],
+    history: [],
+    target: 100
+  };
 
-    const tdN=document.createElement("td");
-    tdN.className="nameCell";
-    tdN.innerHTML = name + (state.out[i]?` <span class="pill">${t("out")}</span>`:"");
-    tdN.onclick=()=>{ const v=prompt(t("editName"), state.names[i]); if(v!==null && v.trim()) {state.names[i]=v.trim(); saveLocal(); render(); writeRemoteDebounced(true);} };
+  function t(k){ return (I18N[state.lang] && I18N[state.lang][k]) ? I18N[state.lang][k] : (I18N.en[k] || k); }
 
-    const tdT=document.createElement("td");
-    tdT.textContent=String(state.totals[i]);
-
-    tr.appendChild(tdN); tr.appendChild(tdT); tbody.appendChild(tr);
-  });
-
-  $("history").innerHTML = state.history.slice(0,12).map(h=>"• "+h).join("<br>");
-}
-
-/* ======= Firebase Live Share (loads ONLY after Set Room) ======= */
-let firebaseReady=false;
-let firebaseDb=null;
-let listenerRef=null;
-let lastAppliedTs=0;
-let writeTimer=null;
-
-function loadScript(src){
-  return new Promise((res, rej)=>{
-    const s=document.createElement("script");
-    s.src=src; s.async=true; s.onload=res; s.onerror=rej;
-    document.head.appendChild(s);
-  });
-}
-
-async function ensureFirebase(){
-  if(!FIREBASE_ENABLED) return false;
-  if(firebaseReady && firebaseDb) return true;
-  try{
-    await loadScript("https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js");
-    await loadScript("https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js");
-    if(!firebase.apps || firebase.apps.length===0) firebase.initializeApp(firebaseConfig);
-    firebaseDb = firebase.database();
-    firebaseReady=true;
-    return true;
-  }catch(e){
-    firebaseReady=false; firebaseDb=null;
-    showErr("Firebase blocked/failed to load. App still works locally.");
-    return false;
+  function saveLocal(){
+    state.target = Math.max(1, Math.floor(Number(el.target.value) || 100));
+    localStorage.setItem(KEY, JSON.stringify(state));
   }
-}
 
-function cleanRoom(s){ return (s||"").trim().toLowerCase().replace(/[^a-z0-9_-]/g,"").slice(0,24); }
-function roomPath(r){ return `rooms/${r}/state`; }
+  function loadLocal(){
+    try{
+      const raw = localStorage.getItem(KEY);
+      if(raw) state = { ...state, ...JSON.parse(raw) };
+    }catch{}
+  }
 
-function attachListener(){
-  if(!firebaseReady || !firebaseDb || !room) return;
-  if(listenerRef){ listenerRef.off(); listenerRef=null; }
-  listenerRef = firebaseDb.ref(roomPath(room));
-  listenerRef.on("value", snap=>{
-    const remote = snap.val();
-    if(!remote || remote._by===clientId) return;
-    const ts = Number(remote._ts||0);
-    if(ts<=lastAppliedTs) return;
-    lastAppliedTs=ts;
+  function cleanRoom(s){
+    return (s||"").trim().toLowerCase().replace(/[^a-z0-9_-]/g,"").slice(0,24);
+  }
 
-    state = { ...state, ...remote };
-    $("target").value = state.target || 100;
-    $("doubleToggle").checked = !!state.double;
+  /* ===== UI ===== */
+  function applyLang(){
+    document.documentElement.lang = state.lang;
+    document.documentElement.dir  = (state.lang === "ar") ? "rtl" : "ltr";
+
+    el.brandSub.textContent = t("brandSub");
+    el.tip.textContent = t("setupTip");
+
+    el.lblPlayers.textContent = t("players");
+    el.btnStart.textContent = t("start");
+    el.lblLang.textContent = t("lang");
+
+    el.lblKick.textContent = t("kick");
+    el.lblHint.textContent = t("hint");
+
+    el.lblRoom.textContent = t("room");
+    el.roomHelp.textContent = t("roomHelp");
+    el.btnSetRoom.textContent = t("set");
+    el.btnShareRoom.textContent = t("share");
+
+    el.btnAddRound.textContent = t("addRound");
+    el.btnAddPlayer.textContent = t("addPlayer");
+    el.btnReset.textContent = t("reset");
+    el.btnGoSetup.textContent = t("setup");
+    el.btnNewGame.textContent = t("newGame");
+
+    el.thPlayer.textContent = t("thPlayer");
+    el.thTotal.textContent = t("thTotal");
+
+    el.splashText.textContent = t("splash");
+
+    // modal buttons
+    el.mNext.textContent = t("modalNext");
+    el.mSkip.textContent = t("modalSkip");
+    el.mCancel.textContent = t("modalCancel");
+
+    updatePills();
+  }
+
+  function updatePills(){
+    const liveOk = firebaseReady && room;
+    el.pillMode.innerHTML = `<strong>${liveOk ? t("live") : t("local")}</strong>`;
+    el.pillRoom.innerHTML = `Room: <strong>${room ? room : "—"}</strong>`;
+  }
+
+  function showSetup(){
+    el.setupCard.style.display = "";
+    el.gameCard.style.display = "none";
+  }
+
+  function showGame(){
+    el.setupCard.style.display = "none";
+    el.gameCard.style.display = "";
+    el.target.value = state.target || 100;
+    el.roomInput.value = room || "";
+    render();
+  }
+
+  function showSplash(){
+    el.splash.style.display = "block";
+    setTimeout(()=>{ el.splash.style.display = "none"; }, 900);
+  }
+
+  function computeTopLow(){
+    const inIdx = state.totals.map((_,i)=>i).filter(i => !state.out[i]);
+    if(inIdx.length === 0) return {top:-1, low:-1, allEqual:true};
+    let top = inIdx[0], low = inIdx[0];
+    for(const i of inIdx){
+      if(state.totals[i] > state.totals[top]) top = i;
+      if(state.totals[i] < state.totals[low]) low = i;
+    }
+    const allEqual = inIdx.every(i => state.totals[i] === state.totals[inIdx[0]]);
+    return {top, low, allEqual};
+  }
+
+  function render(){
+    el.tbody.innerHTML = "";
+    const {top, low, allEqual} = computeTopLow();
+
+    state.names.forEach((name,i)=>{
+      const tr = document.createElement("tr");
+      if(state.out[i]) tr.classList.add("out");
+      if(!state.out[i] && !allEqual && i===top) tr.classList.add("top");
+      if(!state.out[i] && !allEqual && i===low) tr.classList.add("low");
+
+      const td1 = document.createElement("td");
+      td1.className = "nameCell";
+      td1.textContent = name;
+      td1.onclick = ()=>editName(i);
+      if(state.out[i]){
+        const tag = document.createElement("span");
+        tag.className="tag";
+        tag.textContent = t("out");
+        td1.appendChild(tag);
+      }
+
+      const td2 = document.createElement("td");
+      td2.textContent = String(state.totals[i]);
+
+      tr.appendChild(td1);
+      tr.appendChild(td2);
+      el.tbody.appendChild(tr);
+    });
+
+    el.history.innerHTML = (state.history || []).slice(0,12).map(h => "• " + h).join("<br>");
+  }
+
+  function editName(i){
+    const v = prompt(t("editName"), state.names[i]);
+    if(v === null) return;
+    const nm = v.trim();
+    if(nm) state.names[i] = nm;
+    saveLocal();
+    render();
+    pushRemoteDebounced();
+  }
+
+  /* ===== Game ===== */
+  function newGame(n){
+    state.names = Array.from({length:n}, (_,i)=>`Player ${i+1}`);
+    state.totals = Array(n).fill(0);
+    state.out = Array(n).fill(false);
+    state.history = [];
+    saveLocal();
+  }
+
+  /* ===== Score Modal (Keypad) ===== */
+  function openScoreModalKeypad({playerName, playerTotal, roundNo}){
+    return new Promise((resolve)=>{
+      let x2 = false;
+      let valueStr = "0";
+
+      const setValue = (s)=>{
+        s = String(s||"").replace(/[^\d]/g,"");
+        if(s.length === 0) s = "0";
+        if(s.length > 1) s = s.replace(/^0+/, "") || "0";
+        valueStr = s;
+        el.mPoints.value = valueStr;
+      };
+
+      const setX2 = (v)=>{
+        x2 = v;
+        el.mX2.textContent = x2 ? "×2 ON" : "×2 OFF";
+        el.mX2.classList.toggle("on", x2);
+      };
+
+      el.mPlayer.textContent = playerName;
+      el.mInfo.textContent = (state.lang==="ar")
+        ? `${t("modalTotal")}: ${playerTotal}`
+        : `${t("modalTotal")}: ${playerTotal}`;
+
+      el.mRound.textContent = (state.lang==="ar")
+        ? `${t("modalRound")} ${roundNo}`
+        : `${t("modalRound")} ${roundNo}`;
+
+      setValue("0");
+      setX2(false);
+
+      const close = (res)=>{
+        el.scoreModal.style.display = "none";
+        el.mX2.onclick = null;
+        el.mKeypad.onclick = null;
+        el.mNext.onclick = null;
+        el.mSkip.onclick = null;
+        el.mCancel.onclick = null;
+        resolve(res);
+      };
+
+      el.mX2.onclick = ()=> setX2(!x2);
+
+      el.mKeypad.onclick = (e)=>{
+        const btn = e.target.closest("button.kp");
+        if(!btn) return;
+        const k = btn.getAttribute("data-k");
+        if(k === "clear") return setValue("0");
+        if(k === "back")  return setValue(valueStr.length<=1 ? "0" : valueStr.slice(0,-1));
+        if(/^\d$/.test(k)){
+          if(valueStr === "0") setValue(k);
+          else setValue(valueStr + k);
+        }
+      };
+
+      el.mNext.onclick = ()=>{
+        let pts = Number(valueStr) || 0;
+        if(x2) pts *= 2;
+        close({action:"ok", points: pts});
+      };
+      el.mSkip.onclick = ()=> close({action:"skip"});
+      el.mCancel.onclick = ()=> close({action:"cancel"});
+
+      el.scoreModal.style.display = "block";
+    });
+  }
+
+  async function addRound(){
+    const inIdx = state.names.map((_,i)=>i).filter(i=>!state.out[i]);
+    if(inIdx.length===0) return;
+
+    state.target = Math.max(1, Math.floor(Number(el.target.value)||100));
+    const roundNo = (state.history?.length || 0) + 1;
+    const changes = [];
+
+    for(const i of inIdx){
+      const res = await openScoreModalKeypad({
+        playerName: state.names[i],
+        playerTotal: state.totals[i],
+        roundNo
+      });
+
+      if(!res || res.action==="cancel") return;
+      if(res.action==="skip"){
+        changes.push(`${state.names[i]} +0`);
+        continue;
+      }
+
+      const pts = res.points || 0;
+      state.totals[i] += pts;
+      changes.push(`${state.names[i]} +${pts}`);
+
+      if(state.totals[i] >= state.target) state.out[i] = true;
+    }
+
+    state.history.unshift(`${t("modalRound")}: ${changes.join(", ")}`);
+    saveLocal();
+    render();
+    pushRemoteDebounced();
+  }
+
+  function addPlayer(){
+    if(state.names.length >= 10) return alert(t("maxPlayers"));
+    const v = prompt(t("addPlayer"), `Player ${state.names.length+1}`);
+    if(v === null) return;
+    const nm = v.trim() || `Player ${state.names.length+1}`;
+    state.names.push(nm);
+    state.totals.push(0);
+    state.out.push(false);
+    saveLocal();
+    render();
+    pushRemoteDebounced();
+  }
+
+  function resetTotals(){
+    if(!confirm(t("confirmReset"))) return;
+    state.totals = state.totals.map(()=>0);
+    state.out = state.out.map(()=>false);
+    state.history = [];
+    saveLocal();
+    render();
+    pushRemoteDebounced();
+  }
+
+  function startGame(){
+    const n = Math.max(2, Math.min(10, Math.floor(Number(el.playersCount.value)||2)));
+    newGame(n);
+
+    for(let i=0;i<state.names.length;i++){
+      const v = prompt(`Name for ${state.names[i]}`, state.names[i]);
+      if(v === null) break;
+      const nm = v.trim();
+      if(nm) state.names[i] = nm;
+    }
 
     saveLocal();
     applyLang();
+    showGame();
+    showSplash();     // ✅ show CHECK
+    pushRemoteDebounced(true);
+  }
+
+  /* ===== Live Share (Firebase RTDB) ===== */
+  let firebaseReady = false;
+  let firebaseDb = null;
+  let listenerRef = null;
+  let writeTimer = null;
+  let lastAppliedTs = 0;
+
+  function loadScript(src){
+    return new Promise((resolve,reject)=>{
+      const s = document.createElement("script");
+      s.src = src;
+      s.async = true;
+      s.onload = resolve;
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
+
+  async function ensureFirebase(){
+    if(!FIREBASE_ENABLED) return false;
+    if(firebaseReady && firebaseDb) return true;
+    try{
+      await loadScript("https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js");
+      await loadScript("https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js");
+
+      if(!firebase.apps || firebase.apps.length===0){
+        firebase.initializeApp(firebaseConfig);
+      }
+      firebaseDb = firebase.database();
+      firebaseReady = true;
+      updatePills();
+      return true;
+    }catch{
+      firebaseReady = false;
+      firebaseDb = null;
+      updatePills();
+      return false;
+    }
+  }
+
+  function roomPath(r){ return `rooms/${r}/state`; }
+
+  function attachListener(){
+    if(!firebaseReady || !firebaseDb || !room) return;
+    if(listenerRef){ listenerRef.off(); listenerRef=null; }
+    listenerRef = firebaseDb.ref(roomPath(room));
+    listenerRef.on("value", snap=>{
+      const remote = snap.val();
+      if(!remote || typeof remote !== "object") return;
+      if(remote._by === clientId) return;
+
+      const ts = Number(remote._ts || 0);
+      if(ts <= lastAppliedTs) return;
+      lastAppliedTs = ts;
+
+      state.lang = (remote.lang==="ar"||remote.lang==="en") ? remote.lang : state.lang;
+      state.names = Array.isArray(remote.names) ? remote.names : state.names;
+      state.totals = Array.isArray(remote.totals) ? remote.totals : state.totals;
+      state.out = Array.isArray(remote.out) ? remote.out : state.out;
+      state.history = Array.isArray(remote.history) ? remote.history : state.history;
+      state.target = Number.isFinite(remote.target) ? remote.target : state.target;
+
+      el.target.value = state.target || 100;
+
+      saveLocal();
+      applyLang();
+      render();
+      updatePills();
+    });
+
+    updatePills();
+  }
+
+  function pushRemoteDebounced(force=false){
+    clearTimeout(writeTimer);
+    writeTimer = setTimeout(()=>pushRemote(force), 250);
+  }
+
+  async function pushRemote(force=false){
+    if(!room) return;
+    const ok = await ensureFirebase();
+    if(!ok) return;
+
+    const payload = {
+      lang: state.lang,
+      names: state.names,
+      totals: state.totals,
+      out: state.out,
+      history: state.history,
+      target: Math.max(1, Math.floor(Number(el.target.value)||state.target||100)),
+      _by: clientId,
+      _ts: Date.now()
+    };
+
+    firebaseDb.ref(roomPath(room)).set(payload).catch(()=>{});
+    updatePills();
+  }
+
+  async function setRoom(){
+    const r = cleanRoom(el.roomInput.value);
+    if(!r){
+      room = "";
+      localStorage.removeItem(KEY_ROOM);
+      updatePills();
+      if(listenerRef){ listenerRef.off(); listenerRef=null; }
+      return;
+    }
+
+    room = r;
+    localStorage.setItem(KEY_ROOM, room);
+    el.roomInput.value = room;
+
+    const ok = await ensureFirebase();
+    if(!ok){ updatePills(); return; }
+
+    attachListener();
+    pushRemoteDebounced(true);
+  }
+
+  async function shareRoom(){
+    if(!room) return alert(t("setRoomFirst"));
+    const url = new URL(location.href);
+    url.searchParams.set("room", room);
+    url.searchParams.set("lang", state.lang);
+    const link = url.toString();
+
+    if(navigator.share){
+      try{ await navigator.share({ title:"CHECK", text: link, url: link }); }catch{}
+    }else{
+      try{ await navigator.clipboard.writeText(link); alert(t("copied")); }
+      catch{ prompt("Copy link", link); }
+    }
+  }
+
+  /* ===== Events ===== */
+  el.btnStart.onclick = startGame;
+  el.btnAddRound.onclick = addRound;
+  el.btnAddPlayer.onclick = addPlayer;
+  el.btnReset.onclick = resetTotals;
+
+  el.btnGoSetup.onclick = ()=>{ showSetup(); };
+  el.btnNewGame.onclick = ()=>{ if(confirm(t("confirmNew"))) showSetup(); };
+
+  el.btnAR.onclick = ()=>{ state.lang="ar"; saveLocal(); applyLang(); render(); pushRemoteDebounced(true); };
+  el.btnEN.onclick = ()=>{ state.lang="en"; saveLocal(); applyLang(); render(); pushRemoteDebounced(true); };
+
+  el.target.onchange = ()=>{
+    state.target = Math.max(1, Math.floor(Number(el.target.value)||100));
+    state.out = state.totals.map(x => x >= state.target);
+    saveLocal();
     render();
-    setSyncBadge(`${t("live")}: ${room}`);
-  });
-  setSyncBadge(`${t("live")}: ${room}`);
-}
-
-function writeRemoteNow(){
-  if(!room || !firebaseReady || !firebaseDb) return;
-  const payload = {
-    lang: state.lang,
-    names: state.names,
-    totals: state.totals,
-    out: state.out,
-    history: state.history,
-    target: Math.max(1, Math.floor(Number($("target").value)||state.target||100)),
-    double: !!$("doubleToggle").checked,
-    _by: clientId,
-    _ts: Date.now()
+    pushRemoteDebounced(true);
   };
-  firebaseDb.ref(roomPath(room)).set(payload).catch(()=>{});
-}
 
-function writeRemoteDebounced(){
-  clearTimeout(writeTimer);
-  writeTimer=setTimeout(writeRemoteNow, 250);
-}
+  el.btnSetRoom.onclick = setRoom;
+  el.btnShareRoom.onclick = shareRoom;
 
-async function setRoom(){
-  const r = cleanRoom($("roomInput").value);
-  if(!r){ room=""; localStorage.removeItem(KEY_ROOM); setSyncBadge(t("local")); return; }
-  room=r; localStorage.setItem(KEY_ROOM, room);
+  /* ===== Boot ===== */
+  loadLocal();
 
-  const ok = await ensureFirebase();
-  if(!ok){ setSyncBadge(t("local")); return; }
+  // URL params (room/lang)
+  try{
+    const sp = new URLSearchParams(location.search);
+    const r = cleanRoom(sp.get("room"));
+    const l = sp.get("lang");
+    if(l==="ar"||l==="en") state.lang = l;
+    if(r) room = r, localStorage.setItem(KEY_ROOM, room);
+  }catch{}
 
-  attachListener();
-  writeRemoteNow(); // publish current state
-}
+  applyLang();
 
-async function shareRoom(){
-  if(!room) return alert(t("roomFirst"));
-  const url = new URL(location.href);
-  url.searchParams.set("room", room);
-  url.searchParams.set("lang", state.lang);
-  const link = url.toString();
-  if(navigator.share){
-    try{ await navigator.share({title:"Game Score", url:link, text:link}); }catch{}
+  if(state.names && state.names.length >= 2){
+    showGame();
   }else{
-    try{ await navigator.clipboard.writeText(link); alert(t("copied")); }
-    catch{ prompt("Copy link", link); }
+    showSetup();
   }
-}
 
-/* ======= Wire UI ======= */
-$("btnStart").onclick = () => {
-  const n = Math.max(2, Math.min(10, Math.floor(Number($("playersCount").value)||2)));
-  newGame(n);
-  for(let i=0;i<state.names.length;i++){
-    const v = prompt(`Name for ${state.names[i]}`, state.names[i]);
-    if(v===null) break;
-    if(v.trim()) state.names[i]=v.trim();
+  el.roomInput.value = room || "";
+  updatePills();
+
+  if(room){
+    ensureFirebase().then(ok=>{
+      if(ok) attachListener();
+      updatePills();
+    });
   }
-  saveLocal();
-  showGame();
-  render();
-  writeRemoteDebounced();
-};
-
-$("btnAddRound").onclick = () => {
-  const inIdx = state.names.map((_,i)=>i).filter(i=>!state.out[i]);
-  if(inIdx.length===0) return;
-
-  state.target = Math.max(1, Math.floor(Number($("target").value)||100));
-  state.double = !!$("doubleToggle").checked;
-  const mult = state.double ? 2 : 1;
-
-  const changes=[];
-  for(const i of inIdx){
-    const v = prompt(`${t("pointsFor")} ${state.names[i]}${mult===2?" (×2)":""}`, "0");
-    if(v===null) return;
-    let pts = Number(v); if(!Number.isFinite(pts)) pts=0;
-    pts *= mult;
-    state.totals[i] += pts;
-    changes.push(`${state.names[i]} +${pts}`);
-    if(state.totals[i] >= state.target) state.out[i]=true;
-  }
-  state.history.unshift(`${t("round")}: ${changes.join(", ")}`);
-  saveLocal(); render(); writeRemoteDebounced();
-};
-
-$("btnAddPlayer").onclick = () => {
-  if(state.names.length>=10) return alert(t("maxPlayers"));
-  const v = prompt(t("addPlayer"), `Player ${state.names.length+1}`);
-  if(v===null) return;
-  state.names.push(v.trim()||`Player ${state.names.length+1}`);
-  state.totals.push(0);
-  state.out.push(false);
-  saveLocal(); render(); writeRemoteDebounced();
-};
-
-$("btnReset").onclick = () => {
-  if(!confirm(t("confirmReset"))) return;
-  state.totals = state.totals.map(()=>0);
-  state.out = state.out.map(()=>false);
-  state.history = [];
-  saveLocal(); render(); writeRemoteDebounced();
-};
-
-$("btnNewGame").onclick = () => { if(confirm(t("confirmNew"))) showSetup(); };
-$("btnGoSetup").onclick = showSetup;
-
-$("btnAR").onclick = () => { state.lang="ar"; saveLocal(); applyLang(); render(); writeRemoteDebounced(); };
-$("btnEN").onclick = () => { state.lang="en"; saveLocal(); applyLang(); render(); writeRemoteDebounced(); };
-
-$("target").onchange = () => { state.target=Math.max(1, Math.floor(Number($("target").value)||100)); state.out=state.totals.map(x=>x>=state.target); saveLocal(); render(); writeRemoteDebounced(); };
-$("doubleToggle").onchange = () => { state.double=!!$("doubleToggle").checked; saveLocal(); writeRemoteDebounced(); };
-
-$("btnSetRoom").onclick = setRoom;
-$("btnShareRoom").onclick = shareRoom;
-
-/* ======= Boot ======= */
-loadLocal();
-room = localStorage.getItem(KEY_ROOM) || room;
-
-try{
-  const sp = new URLSearchParams(location.search);
-  const r = cleanRoom(sp.get("room"));
-  const l = sp.get("lang");
-  if(l==="ar"||l==="en") state.lang=l;
-  if(r) room=r, localStorage.setItem(KEY_ROOM, room);
-}catch{}
-
-applyLang();
-if(state.names && state.names.length>=2) showGame(); else showSetup();
-$("roomInput").value = room || "";
-setSyncBadge(t("local"));
+})();
 </script>
 </body>
 </html>
