@@ -472,7 +472,7 @@
     <div class="pills">
       <div class="pill" id="pillRole">Role: <strong>Viewer</strong></div>
       <div class="pill" id="pillMode"><strong>Local</strong></div>
-      <div class="pill" id="pillRoom">Room: <strong>—</strong></div>
+      <div class="pill" id="pillRoom">Room: <strong>â</strong></div>
     </div>
   </div>
 
@@ -483,7 +483,7 @@
         <label class="small" id="lblPlayers">Players</label><br>
         <input id="playersCount" type="number" min="2" max="10" value="2">
       </div>
-      <button class="primary" id="btnStart" style="flex:1; min-width:220px;">Start Game</button>
+      <button class="primary" id="btnStart" style="flex:1; min-width:220px;" type="button">Start Game</button>
     </div>
 
     <hr class="sep">
@@ -499,20 +499,20 @@
     </div>
 
     <div class="helper" style="margin-top:10px;">
-      <span style="color:rgba(255,255,255,.8); font-weight:900;">Host link</span> = add <code>?host=1</code> to your URL on your phone.
+      <span style="color:rgba(255,255,255,.8); font-weight:900;">Host link</span> = open once with <code>?host=1</code> on your phone (then it remembers).
     </div>
   </div>
 
   <!-- Game -->
   <div class="card" id="gameCard" style="display:none">
     <div class="row" id="hostControls">
-      <button class="primary" id="btnAddRound" type="button">➕ Add Round</button>
-      <button class="ghost" id="btnUndo" type="button">↩️ Undo</button>
-      <button class="ghost" id="btnHistory" type="button">📜 History</button>
-      <button class="ghost" id="btnAddPlayer" type="button">👤 Add Player</button>
-      <button class="ghost" id="btnReset" type="button">🔄 Reset</button>
-      <button class="ghost" id="btnGoSetup" type="button">⚙️ Setup</button>
-      <button class="ghost" id="btnNewGame" type="button">🆕 New Game</button>
+      <button class="primary" id="btnAddRound" type="button">â Add Round</button>
+      <button class="ghost" id="btnUndo" type="button">â©ï¸ Undo</button>
+      <button class="ghost" id="btnHistory" type="button">ð History</button>
+      <button class="ghost" id="btnAddPlayer" type="button">ð¤ Add Player</button>
+      <button class="ghost" id="btnReset" type="button">ð Reset</button>
+      <button class="ghost" id="btnGoSetup" type="button">âï¸ Setup</button>
+      <button class="ghost" id="btnNewGame" type="button">ð New Game</button>
     </div>
 
     <hr class="sep" id="hostSep">
@@ -521,7 +521,7 @@
       <div style="flex:1; min-width:220px">
         <label class="small" id="lblKick">Kick-out at</label><br>
         <input id="target" type="number" min="1" value="100">
-        <div class="helper" id="lblHint">Players become OUT when total ≥ target.</div>
+        <div class="helper" id="lblHint">Players become OUT when total â¥ target.</div>
       </div>
 
       <div style="flex:1; min-width:260px">
@@ -531,7 +531,7 @@
           <button class="good" id="btnSetRoom" type="button">Set</button>
           <button class="ghost" id="btnShareRoom" type="button">Share</button>
         </div>
-        <div class="helper" id="roomHelp">Share the viewer link so players only see the scoreboard.</div>
+        <div class="helper" id="roomHelp">Share the link so players only see the scoreboard.</div>
       </div>
     </div>
 
@@ -539,13 +539,13 @@
     <div class="row" id="leaderRow" style="gap:12px; margin-top:10px;">
       <div class="leaderCard topCard" id="topCard">
         <div class="leaderTitle">TOP</div>
-        <div class="leaderName" id="topName">—</div>
+        <div class="leaderName" id="topName">â</div>
         <div class="leaderScore" id="topScore">0</div>
       </div>
 
       <div class="leaderCard lowCard" id="lowCard">
         <div class="leaderTitle">LOW</div>
-        <div class="leaderName" id="lowName">—</div>
+        <div class="leaderName" id="lowName">â</div>
         <div class="leaderScore" id="lowScore">0</div>
       </div>
     </div>
@@ -565,14 +565,14 @@
 
 <!-- Viewer lock toast -->
 <div id="viewerLock">
-  <div class="toast">VIEW MODE — scoreboard only (controlled by host)</div>
+  <div class="toast">VIEW MODE â scoreboard only (controlled by host)</div>
 </div>
 
 <!-- Splash -->
 <div id="splash">
   <div class="box">
     <div class="big">CHECK</div>
-    <div class="tiny" id="splashText">Let’s play ✨</div>
+    <div class="tiny" id="splashText">Letâs play â¨</div>
   </div>
 </div>
 
@@ -589,7 +589,7 @@
 
     <div class="scoreRow">
       <input id="mPoints" readonly value="0" />
-      <button class="ghost" id="mX2" type="button">×2 OFF</button>
+      <button class="ghost" id="mX2" type="button">Ã2 OFF</button>
     </div>
 
     <div class="kpGrid" id="mKeypad">
@@ -604,7 +604,7 @@
       <button class="kp" data-k="9" type="button">9</button>
       <button class="kp" data-k="clear" type="button">C</button>
       <button class="kp" data-k="0" type="button">0</button>
-      <button class="kp" data-k="back" type="button">⌫</button>
+      <button class="kp" data-k="back" type="button">â«</button>
     </div>
 
     <div class="actions">
@@ -621,7 +621,7 @@
     <div class="topline">
       <div>
         <div class="nmTitle" id="nmTitle">Name</div>
-        <div class="nmSub" id="nmSub">Type a fun name ✨</div>
+        <div class="nmSub" id="nmSub">Type a fun name â¨</div>
       </div>
       <div class="logo"><img src="icons/icon-192.png" alt="CHECK"></div>
     </div>
@@ -667,6 +667,21 @@
 <script>
 (() => {
   "use strict";
+
+  /* ========= ROLE (HOST / VIEWER) =========
+     Host = open once with ?host=1 (then it remembers this phone)
+     Viewer = everyone else (including shared link)
+  */
+  const spBoot = new URLSearchParams(location.search);
+  const hostParam = spBoot.get("host") === "1";
+  const savedHost = localStorage.getItem("CHECK_HOST") === "1";
+  if (hostParam) localStorage.setItem("CHECK_HOST", "1");
+
+  const IS_HOST = hostParam || savedHost;
+  const IS_VIEWER = !IS_HOST;
+
+  document.body.classList.toggle("viewer", IS_VIEWER);
+  document.body.classList.toggle("host", IS_HOST);
 
   /* ========= Firebase (your config) ========= */
   const FIREBASE_ENABLED = true;
@@ -772,73 +787,54 @@
     confetti: $("confetti"),
   };
 
-  /* ========= Role: SAFE BY DEFAULT =========
-     ✅ Host ONLY when URL has ?host=1
-     ✅ Everyone else is Viewer (cannot control)
-  */
-  const spBoot = new URLSearchParams(location.search);
-  const hostParam = spBoot.get("host") === "1";
-const savedHost = localStorage.getItem("CHECK_HOST") === "1";
-
-// First time only: if you open with ?host=1 once, it remembers this phone as host
-if (hostParam) localStorage.setItem("CHECK_HOST","1");
-
-const IS_HOST = hostParam || savedHost;
-const IS_VIEWER = !IS_HOST;
-  const IS_VIEWER = !IS_HOST;
-
-  document.body.classList.toggle("viewer", IS_VIEWER);
-  document.body.classList.toggle("host", IS_HOST);
-
   /* ========= i18n ========= */
   const I18N = {
     ar: {
-      brandSub: "لوحة النقاط",
-      setupTip: "الحفظ تلقائيًا. حدّد Room للعب المباشر مع أصدقائك.",
-      players: "اللاعبين",
-      start: "ابدأ اللعبة",
-      lang: "اللغة",
-      kick: "الإقصاء عند",
-      hint: "يصبح اللاعب OUT عندما المجموع ≥ الهدف.",
+      brandSub: "ÙÙØ­Ø© Ø§ÙÙÙØ§Ø·",
+      setupTip: "Ø§ÙØ­ÙØ¸ ØªÙÙØ§Ø¦ÙÙØ§. Ø­Ø¯ÙØ¯ Room ÙÙØ¹Ø¨ Ø§ÙÙØ¨Ø§Ø´Ø± ÙØ¹ Ø£ØµØ¯ÙØ§Ø¦Ù.",
+      players: "Ø§ÙÙØ§Ø¹Ø¨ÙÙ",
+      start: "Ø§Ø¨Ø¯Ø£ Ø§ÙÙØ¹Ø¨Ø©",
+      lang: "Ø§ÙÙØºØ©",
+      kick: "Ø§ÙØ¥ÙØµØ§Ø¡ Ø¹ÙØ¯",
+      hint: "ÙØµØ¨Ø­ Ø§ÙÙØ§Ø¹Ø¨ OUT Ø¹ÙØ¯ÙØ§ Ø§ÙÙØ¬ÙÙØ¹ â¥ Ø§ÙÙØ¯Ù.",
       room: "Room",
-      roomHelp: "ارسل الرابط للاعبين (يشوفون اللوحة فقط).",
-      addRound: "➕ جولة",
-      undo: "↩️ تراجع",
-      history: "📜 الجولات",
-      addPlayer: "👤 لاعب",
-      reset: "🔄 تصفير",
-      setup: "⚙️ إعدادات",
-      newGame: "🆕 لعبة جديدة",
-      thPlayer: "اللاعب",
-      thTotal: "المجموع",
+      roomHelp: "Ø§Ø±Ø³Ù Ø§ÙØ±Ø§Ø¨Ø· ÙÙØ§Ø¹Ø¨ÙÙ (ÙØ´ÙÙÙÙ Ø§ÙÙÙØ­Ø© ÙÙØ·).",
+      addRound: "â Ø¬ÙÙØ©",
+      undo: "â©ï¸ ØªØ±Ø§Ø¬Ø¹",
+      history: "ð Ø§ÙØ¬ÙÙØ§Øª",
+      addPlayer: "ð¤ ÙØ§Ø¹Ø¨",
+      reset: "ð ØªØµÙÙØ±",
+      setup: "âï¸ Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª",
+      newGame: "ð ÙØ¹Ø¨Ø© Ø¬Ø¯ÙØ¯Ø©",
+      thPlayer: "Ø§ÙÙØ§Ø¹Ø¨",
+      thTotal: "Ø§ÙÙØ¬ÙÙØ¹",
       out: "OUT",
-      maxPlayers: "الحد الأقصى 10 لاعبين.",
-      confirmReset: "تصفير كل النقاط وإرجاع الجميع IN؟",
-      confirmNew: "بدء لعبة جديدة؟ (سيتم مسح الحالي)",
-      splash: "Let’s play ✨",
+      maxPlayers: "Ø§ÙØ­Ø¯ Ø§ÙØ£ÙØµÙ 10 ÙØ§Ø¹Ø¨ÙÙ.",
+      confirmReset: "ØªØµÙÙØ± ÙÙ Ø§ÙÙÙØ§Ø· ÙØ¥Ø±Ø¬Ø§Ø¹ Ø§ÙØ¬ÙÙØ¹ INØ",
+      confirmNew: "Ø¨Ø¯Ø¡ ÙØ¹Ø¨Ø© Ø¬Ø¯ÙØ¯Ø©Ø (Ø³ÙØªÙ ÙØ³Ø­ Ø§ÙØ­Ø§ÙÙ)",
+      splash: "Letâs play â¨",
       local: "Local",
       live: "Live",
-      setRoomFirst: "اكتب Room أولاً",
-      copied: "تم نسخ الرابط",
-      modalNext: "التالي",
-      modalSkip: "تخطي",
-      modalCancel: "إلغاء",
-      modalRound: "جولة",
-      modalTotal: "مجموعه الحالي",
-      nmTitleAdd: "اسم اللاعب",
-      nmTitleEdit: "تعديل الاسم",
-      nmSub: "اختر اسم لطيف ✨",
-      nmSave: "حفظ",
-      nmCancel: "إلغاء",
+      setRoomFirst: "Ø§ÙØªØ¨ Room Ø£ÙÙØ§Ù",
+      copied: "ØªÙ ÙØ³Ø® Ø§ÙØ±Ø§Ø¨Ø·",
+      modalNext: "Ø§ÙØªØ§ÙÙ",
+      modalSkip: "ØªØ®Ø·Ù",
+      modalCancel: "Ø¥ÙØºØ§Ø¡",
+      modalRound: "Ø¬ÙÙØ©",
+      modalTotal: "ÙØ¬ÙÙØ¹Ù Ø§ÙØ­Ø§ÙÙ",
+      nmTitleAdd: "Ø§Ø³Ù Ø§ÙÙØ§Ø¹Ø¨",
+      nmTitleEdit: "ØªØ¹Ø¯ÙÙ Ø§ÙØ§Ø³Ù",
+      nmSub: "Ø§Ø®ØªØ± Ø§Ø³Ù ÙØ·ÙÙ â¨",
+      nmSave: "Ø­ÙØ¸",
+      nmCancel: "Ø¥ÙØºØ§Ø¡",
       roleHost: "Host",
       roleView: "Viewer",
-      viewToast: "وضع العرض — اللوحة فقط (التحكم عند الهوست)",
+      viewToast: "ÙØ¶Ø¹ Ø§ÙØ¹Ø±Ø¶ â Ø§ÙÙÙØ­Ø© ÙÙØ· (Ø§ÙØªØ­ÙÙ Ø¹ÙØ¯ Ø§ÙÙÙØ³Øª)",
       shareText: "Share",
-      roundHistory: "سجل الجولات",
-      clear: "مسح",
-      close: "إغلاق",
-      kicked: "OUT ✅",
-      check: "CHECK!",
+      roundHistory: "Ø³Ø¬Ù Ø§ÙØ¬ÙÙØ§Øª",
+      clear: "ÙØ³Ø­",
+      close: "Ø¥ØºÙØ§Ù",
+      kicked: "OUT â",
     },
     en: {
       brandSub: "Scoreboard",
@@ -847,23 +843,23 @@ const IS_VIEWER = !IS_HOST;
       start: "Start Game",
       lang: "Language",
       kick: "Kick-out at",
-      hint: "Players become OUT when total ≥ target.",
+      hint: "Players become OUT when total â¥ target.",
       room: "Room",
       roomHelp: "Share the link so players only see the scoreboard.",
-      addRound: "➕ Add Round",
-      undo: "↩️ Undo",
-      history: "📜 History",
-      addPlayer: "👤 Add Player",
-      reset: "🔄 Reset",
-      setup: "⚙️ Setup",
-      newGame: "🆕 New Game",
+      addRound: "â Add Round",
+      undo: "â©ï¸ Undo",
+      history: "ð History",
+      addPlayer: "ð¤ Add Player",
+      reset: "ð Reset",
+      setup: "âï¸ Setup",
+      newGame: "ð New Game",
       thPlayer: "Player",
       thTotal: "Total",
       out: "OUT",
       maxPlayers: "Max players is 10.",
       confirmReset: "Reset all totals and set everyone IN?",
       confirmNew: "Start a new game? (clears current)",
-      splash: "Let’s play ✨",
+      splash: "Letâs play â¨",
       local: "Local",
       live: "Live",
       setRoomFirst: "Enter a room first",
@@ -875,18 +871,17 @@ const IS_VIEWER = !IS_HOST;
       modalTotal: "Current total",
       nmTitleAdd: "Player name",
       nmTitleEdit: "Edit name",
-      nmSub: "Pick a fun name ✨",
+      nmSub: "Pick a fun name â¨",
       nmSave: "Save",
       nmCancel: "Cancel",
       roleHost: "Host",
       roleView: "Viewer",
-      viewToast: "VIEW MODE — scoreboard only (controlled by host)",
+      viewToast: "VIEW MODE â scoreboard only (controlled by host)",
       shareText: "Share",
       roundHistory: "Round History",
       clear: "Clear",
       close: "Close",
-      kicked: "is OUT ✅",
-      check: "CHECK!",
+      kicked: "is OUT â",
     }
   };
 
@@ -908,7 +903,7 @@ const IS_VIEWER = !IS_HOST;
     names: [],
     totals: [],
     out: [],
-    history: [],     // array of strings (newest first)
+    history: [],     // newest first
     snapshots: [],   // undo stack
     target: 100
   };
@@ -939,6 +934,7 @@ const IS_VIEWER = !IS_HOST;
 
   /* ========= Viewer hard-lock ========= */
   if(IS_VIEWER){
+    document.getElementById("viewerLock").style.display = "block";
     document.addEventListener("click", (e)=>{
       const target = e.target.closest("button,input,select,textarea,a");
       if(target){
@@ -973,7 +969,9 @@ const IS_VIEWER = !IS_HOST;
   addEventListener("resize", resizeConf);
 
   function showCheck(name){
-    el.checkBannerSub.textContent = state.lang === "ar" ? `${name} ${t("kicked")}` : `${name} ${t("kicked")}`;
+    el.checkBannerSub.textContent = state.lang === "ar"
+      ? `${name} ${t("kicked")}`
+      : `${name} ${t("kicked")}`;
     el.checkBanner.style.display = "block";
     conf.style.display = "block";
     resizeConf();
@@ -1072,14 +1070,10 @@ const IS_VIEWER = !IS_HOST;
 
     if(IS_VIEWER){
       el.setupCard.style.display = "none";
-      el.viewerLock.style.display = "block";
-
-      // disable focusable inputs
       el.roomInput.setAttribute("disabled","disabled");
       el.target.setAttribute("disabled","disabled");
       el.playersCount.setAttribute("disabled","disabled");
     }else{
-      el.viewerLock.style.display = "none";
       el.roomInput.removeAttribute("disabled");
       el.target.removeAttribute("disabled");
       el.playersCount.removeAttribute("disabled");
@@ -1089,8 +1083,8 @@ const IS_VIEWER = !IS_HOST;
   function updatePills(extraPresenceText=""){
     const liveOk = firebaseReady && room;
     const liveText = liveOk ? t("live") : t("local");
-    el.pillMode.innerHTML = `<strong>${liveText}</strong>${extraPresenceText ? " · " + extraPresenceText : ""}`;
-    el.pillRoom.innerHTML = `Room: <strong>${room ? room : "—"}</strong>`;
+    el.pillMode.innerHTML = `<strong>${liveText}</strong>${extraPresenceText ? " Â· " + extraPresenceText : ""}`;
+    el.pillRoom.innerHTML = `Room: <strong>${room ? room : "â"}</strong>`;
   }
 
   function showSetup(){
@@ -1128,11 +1122,17 @@ const IS_VIEWER = !IS_HOST;
     return {top, low, allEqual};
   }
 
+  function escapeHtml(s){
+    return String(s ?? "").replace(/[&<>"']/g, (m)=>({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+    }[m]));
+  }
+
   function renderHistoryDrawer(){
     const items = (state.history || []).slice(0, 50);
     el.historyList.innerHTML = items.length
-      ? items.map(h => `<div class="item">• ${escapeHtml(h)}</div>`).join("")
-      : `<div style="color:rgba(255,255,255,.55); padding:10px;">—</div>`;
+      ? items.map(h => `<div class="item">â¢ ${escapeHtml(h)}</div>`).join("")
+      : `<div style="color:rgba(255,255,255,.55); padding:10px;">â</div>`;
   }
 
   function render(){
@@ -1147,7 +1147,7 @@ const IS_VIEWER = !IS_HOST;
       void el.topCard.offsetWidth;
       el.topCard.classList.add("pop","glowTop");
     } else {
-      el.topName.textContent = "—";
+      el.topName.textContent = "â";
       el.topScore.textContent = "0";
     }
 
@@ -1158,7 +1158,7 @@ const IS_VIEWER = !IS_HOST;
       void el.lowCard.offsetWidth;
       el.lowCard.classList.add("pop","glowLow");
     } else {
-      el.lowName.textContent = "—";
+      el.lowName.textContent = "â";
       el.lowScore.textContent = "0";
     }
 
@@ -1195,12 +1195,6 @@ const IS_VIEWER = !IS_HOST;
     });
 
     renderHistoryDrawer();
-  }
-
-  function escapeHtml(s){
-    return String(s ?? "").replace(/[&<>"']/g, (m)=>({
-      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-    }[m]));
   }
 
   /* ========= Name Modal ========= */
@@ -1258,7 +1252,7 @@ const IS_VIEWER = !IS_HOST;
 
       const setX2 = (v)=>{
         x2 = v;
-        el.mX2.textContent = x2 ? "×2 ON" : "×2 OFF";
+        el.mX2.textContent = x2 ? "Ã2 ON" : "Ã2 OFF";
         el.mX2.classList.toggle("on", x2);
       };
 
@@ -1320,7 +1314,6 @@ const IS_VIEWER = !IS_HOST;
     const n = Math.max(2, Math.min(10, Math.floor(Number(el.playersCount.value)||2)));
     newGame(n);
 
-    // Name each player
     for(let i=0;i<state.names.length;i++){
       const val = await openNameModal({
         title: t("nmTitleAdd") + ` ${i+1}`,
@@ -1365,7 +1358,6 @@ const IS_VIEWER = !IS_HOST;
       });
 
       if(!res || res.action==="cancel"){
-        // undo snapshot push if cancelled mid-round
         state.snapshots.shift();
         return;
       }
@@ -1524,7 +1516,6 @@ const IS_VIEWER = !IS_HOST;
       const remote = snap.val();
       if(!remote || typeof remote !== "object") return;
 
-      // if this update is ours, ignore
       if(remote._by === clientId) return;
 
       const ts = Number(remote._ts || 0);
@@ -1542,7 +1533,6 @@ const IS_VIEWER = !IS_HOST;
 
       el.target.value = state.target || 100;
 
-      // host stores local for convenience, viewer doesn't need to
       if(IS_HOST) localStorage.setItem(KEY, JSON.stringify(state));
 
       applyLang();
@@ -1595,7 +1585,7 @@ const IS_VIEWER = !IS_HOST;
       const hosts = ids.filter(id => obj[id]?.role === "host").length;
 
       if(IS_HOST){
-        updatePills(`👀 ${viewers} · 🎛️ ${hosts}`);
+        updatePills(`ð ${viewers} Â· ðï¸ ${hosts}`);
       }else{
         updatePills();
       }
@@ -1632,6 +1622,7 @@ const IS_VIEWER = !IS_HOST;
     url.searchParams.set("room", room);
     url.searchParams.set("lang", state.lang);
     url.searchParams.delete("host"); // viewer-safe
+    url.searchParams.delete("view"); // just in case
     return url.toString();
   }
 
@@ -1697,7 +1688,7 @@ const IS_VIEWER = !IS_HOST;
   /* ========= Boot ========= */
   loadLocal();
 
-  // URL params: room/lang
+  // URL params: room/lang (viewer-safe; does not make them host)
   try{
     const sp = new URLSearchParams(location.search);
     const r = cleanRoom(sp.get("room"));
@@ -1711,17 +1702,15 @@ const IS_VIEWER = !IS_HOST;
 
   applyLang();
 
-  // Viewer always sees scoreboard page
+  // Everyone loads the scoreboard screen. Host additionally sees setup.
   el.gameCard.style.display = "";
   el.setupCard.style.display = IS_HOST ? "" : "none";
 
-  // If we already have a game locally and we're host, show game
   if(IS_HOST && state.names && state.names.length >= 2){
     showGame();
   }else if(IS_HOST){
     showSetup();
   }else{
-    // viewer: still render whatever we have (likely empty until Firebase pulls)
     showGame();
   }
 
