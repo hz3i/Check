@@ -14,98 +14,70 @@
   --btn:#1e88e5;
   --red:#c62828;     /* TOP */
   --green:#2e7d32;   /* LOW */
-  --muted:#999;
+  --muted:#aaa;
 }
-
-body{
-  margin:0;
-  font-family:system-ui,-apple-system;
-  background:var(--bg);
-  color:#fff;
-}
-
-h1{margin:16px}
-.card{
-  border:1px solid var(--border);
-  border-radius:16px;
-  padding:16px;
-  margin:16px;
-  background:var(--card);
-}
-
-.row{display:flex;gap:10px;flex-wrap:wrap}
+body{ margin:0; font-family:system-ui,-apple-system; background:var(--bg); color:#fff; }
+h1{ margin:16px; }
+.card{ border:1px solid var(--border); border-radius:16px; padding:16px; margin:16px; background:var(--card); }
+.row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
 button,input{
-  padding:10px 14px;
-  border-radius:12px;
-  border:1px solid var(--border);
-  background:#222;
-  color:#fff;
-  font-size:15px;
+  padding:10px 14px; border-radius:12px; border:1px solid var(--border);
+  background:#222; color:#fff; font-size:15px;
 }
-button.primary{background:var(--btn);border:none;font-weight:700}
-button:active{opacity:.8}
-input{width:60px;text-align:center}
-
-table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:12px;
-}
-th,td{
-  padding:10px;
-  border-bottom:1px solid var(--border);
-}
-tr.top{background:var(--red)}
-tr.low{background:var(--green)}
-tr.out{opacity:.4}
-
-.history{
-  font-size:13px;
-  color:var(--muted);
-  margin-top:8px;
-}
-
-.small{font-size:13px;color:var(--muted)}
+button.primary{ background:var(--btn); border:none; font-weight:700; }
+button:active{ opacity:.85; }
+input{ width:70px; text-align:center; }
+.small{ font-size:13px; color:var(--muted); margin:6px 0 0; }
+table{ width:100%; border-collapse:collapse; margin-top:12px; }
+th,td{ padding:10px; border-bottom:1px solid var(--border); }
+td.nameCell{ cursor:pointer; }
+tr.top{ background:var(--red); }
+tr.low{ background:var(--green); }
+tr.out{ opacity:.35; }
+.history{ font-size:13px; color:var(--muted); margin-top:10px; line-height:1.4; }
+.pill{ display:inline-block; padding:2px 8px; border:1px solid #666; border-radius:999px; font-size:12px; margin-inline-start:8px; opacity:.9; }
 </style>
 </head>
 
 <body>
+<h1 id="title">🎮 Game Score</h1>
 
-<h1>🎮 Game Score</h1>
-
-<div class="card" id="setup">
+<div class="card" id="setupCard">
   <div class="row">
-    <label>اللاعبين</label>
+    <span id="lblPlayers">Players</span>
     <input id="playersCount" type="number" min="2" max="10" value="2">
-    <button class="primary" onclick="startGame()">ابدأ / لعبة جديدة</button>
+    <button class="primary" id="btnStart">Start / New Game</button>
   </div>
 
   <div class="row" style="margin-top:10px">
-    <label>اللغة</label>
-    <button onclick="setLang('ar')">AR</button>
-    <button onclick="setLang('en')">EN</button>
+    <span id="lblLang">Language</span>
+    <button id="btnAR">AR</button>
+    <button id="btnEN">EN</button>
   </div>
 
-  <p class="small">الحفظ تلقائيًا على الجهاز</p>
+  <p class="small" id="tip">Tip: This app auto-saves.</p>
 </div>
 
-<div class="card" id="game" style="display:none">
+<div class="card" id="gameCard" style="display:none">
   <div class="row">
-    <button onclick="addRound()">➕ جولة</button>
-    <button onclick="addPlayer()">👤 لاعب</button>
-    <button onclick="resetGame()">🔄 تصفير</button>
+    <button id="btnAddRound">➕ Add Round</button>
+    <button id="btnAddPlayer">👤 Add Player</button>
+    <button id="btnNewGame" class="primary">🆕 New Game</button>
+    <button id="btnGoSetup">⚙️ Setup</button>
+    <button id="btnReset">🔄 Reset</button>
   </div>
 
   <div class="row" style="margin-top:10px">
-    <label>الإقصاء عند</label>
-    <input id="target" type="number" value="100" onchange="save()">
+    <span id="lblKick">Kick-out at</span>
+    <input id="target" type="number" min="1" value="100">
+    <span class="small" id="lblHint">Players become OUT when total ≥ target.</span>
   </div>
 
   <table id="table">
     <thead>
       <tr>
-        <th>اللاعب</th>
-        <th>المجموع</th>
+        <th id="thPlayer">Player</th>
+        <th id="thTotal">Total</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -115,89 +87,187 @@ tr.out{opacity:.4}
 </div>
 
 <script>
-let state={
-  lang:"ar",
-  names:[],
-  totals:[],
-  out:[],
-  history:[]
+const KEY = "gameScore_v2_local";
+let state = {
+  lang: "ar",
+  names: [],
+  totals: [],
+  out: [],
+  history: [],
+  target: 100
 };
 
-function save(){
-  localStorage.setItem("gameScore",JSON.stringify(state));
-}
-function load(){
-  let s=localStorage.getItem("gameScore");
-  if(s){state=JSON.parse(s);render();}
-}
-
-function setLang(l){
-  state.lang=l;
-  document.documentElement.lang=l;
-  document.documentElement.dir=l==="ar"?"rtl":"ltr";
-  save();
-}
-
-function startGame(){
-  let n=+playersCount.value;
-  state.names=[];
-  state.totals=[];
-  state.out=[];
-  state.history=[];
-  for(let i=0;i<n;i++){
-    state.names.push("Player "+(i+1));
-    state.totals.push(0);
-    state.out.push(false);
+const I18N = {
+  ar: {
+    title: "🎮 نقاط اللعبة",
+    players: "اللاعبين",
+    start: "ابدأ / لعبة جديدة",
+    lang: "اللغة",
+    tip: "ملاحظة: الحفظ تلقائيًا على الجهاز.",
+    addRound: "➕ إضافة جولة",
+    addPlayer: "👤 إضافة لاعب",
+    newGame: "🆕 لعبة جديدة",
+    setup: "⚙️ إعدادات",
+    reset: "🔄 تصفير",
+    kick: "الإقصاء عند",
+    hint: "يصبح اللاعب OUT عندما المجموع ≥ الهدف.",
+    thPlayer: "اللاعب",
+    thTotal: "المجموع",
+    editName: "تعديل الاسم",
+    pointsFor: "نقاط الجولة لـ",
+    out: "OUT",
+    round: "جولة",
+    confirmReset: "تصفير كل النقاط وإرجاع الجميع IN؟",
+    confirmNew: "بدء لعبة جديدة؟ (سيتم مسح الحالي)",
+    maxPlayers: "الحد الأقصى 10 لاعبين."
+  },
+  en: {
+    title: "🎮 Game Score",
+    players: "Players",
+    start: "Start / New Game",
+    lang: "Language",
+    tip: "Tip: This app auto-saves.",
+    addRound: "➕ Add Round",
+    addPlayer: "👤 Add Player",
+    newGame: "🆕 New Game",
+    setup: "⚙️ Setup",
+    reset: "🔄 Reset",
+    kick: "Kick-out at",
+    hint: "Players become OUT when total ≥ target.",
+    thPlayer: "Player",
+    thTotal: "Total",
+    editName: "Edit name",
+    pointsFor: "Round points for",
+    out: "OUT",
+    round: "Round",
+    confirmReset: "Reset all totals and set everyone IN?",
+    confirmNew: "Start a new game? (clears current)",
+    maxPlayers: "Max players is 10."
   }
-  save();
+};
+
+function t(k){ return I18N[state.lang][k] || k; }
+
+function save(){
+  state.target = Math.max(1, Math.floor(+target.value || 100));
+  localStorage.setItem(KEY, JSON.stringify(state));
+}
+
+function load(){
+  try{
+    const raw = localStorage.getItem(KEY);
+    if(!raw) return;
+    const s = JSON.parse(raw);
+    if(!s) return;
+    state = { ...state, ...s };
+  }catch{}
+}
+
+function applyLang(){
+  document.documentElement.lang = state.lang;
+  document.documentElement.dir  = (state.lang === "ar") ? "rtl" : "ltr";
+
+  title.textContent      = t("title");
+  lblPlayers.textContent = t("players");
+  btnStart.textContent   = t("start");
+  lblLang.textContent    = t("lang");
+  tip.textContent        = t("tip");
+
+  btnAddRound.textContent  = t("addRound");
+  btnAddPlayer.textContent = t("addPlayer");
+  btnNewGame.textContent   = t("newGame");
+  btnGoSetup.textContent   = t("setup");
+  btnReset.textContent     = t("reset");
+
+  lblKick.textContent   = t("kick");
+  lblHint.textContent   = t("hint");
+  thPlayer.textContent  = t("thPlayer");
+  thTotal.textContent   = t("thTotal");
+}
+
+function showSetup(){
+  setupCard.style.display = "";
+  gameCard.style.display  = "none";
+  applyLang();
+}
+
+function showGame(){
+  setupCard.style.display = "none";
+  gameCard.style.display  = "";
+  target.value = state.target || 100;
+  applyLang();
   render();
 }
 
+function newGame(n){
+  state.names = Array.from({length:n}, (_,i)=>`Player ${i+1}`);
+  state.totals = Array(n).fill(0);
+  state.out = Array(n).fill(false);
+  state.history = [];
+  state.target = Math.max(1, Math.floor(+target.value || state.target || 100));
+  save();
+}
+
+function computeTopLow(){
+  const inIdx = state.totals.map((_,i)=>i).filter(i=>!state.out[i]);
+  if(inIdx.length === 0) return { top:-1, low:-1, allEqual:true };
+
+  let top = inIdx[0], low = inIdx[0];
+  for(const i of inIdx){
+    if(state.totals[i] > state.totals[top]) top = i;
+    if(state.totals[i] < state.totals[low]) low = i;
+  }
+  const allEqual = inIdx.every(i => state.totals[i] === state.totals[inIdx[0]]);
+  return { top, low, allEqual };
+}
+
 function render(){
-  setup.style.display="none";
-  game.style.display="block";
+  const tbody = document.querySelector("#table tbody");
+  tbody.innerHTML = "";
 
-  let max=Math.max(...state.totals.filter((_,i)=>!state.out[i]));
-  let min=Math.min(...state.totals.filter((_,i)=>!state.out[i]));
-
-  let tbody=document.querySelector("#table tbody");
-  tbody.innerHTML="";
+  const {top, low, allEqual} = computeTopLow();
 
   state.names.forEach((name,i)=>{
-    let tr=document.createElement("tr");
-    if(!state.out[i] && state.totals[i]===max) tr.classList.add("top");
-    if(!state.out[i] && state.totals[i]===min) tr.classList.add("low");
-    if(state.out[i]) tr.classList.add("out");
+    const tr = document.createElement("tr");
 
-    tr.innerHTML=`
-      <td onclick="editName(${i})">${name}${state.out[i]?" (OUT)":""}</td>
-      <td>${state.totals[i]}</td>
-    `;
+    if(state.out[i]) tr.classList.add("out");
+    if(!state.out[i] && !allEqual && i===top) tr.classList.add("top");   // TOP = RED
+    if(!state.out[i] && !allEqual && i===low) tr.classList.add("low");   // LOW = GREEN
+
+    const tdName = document.createElement("td");
+    tdName.className = "nameCell";
+    tdName.innerHTML = `${escapeHtml(name)}${state.out[i] ? ` <span class="pill">${t("out")}</span>` : ""}`;
+    tdName.onclick = ()=>editName(i);
+
+    const tdTotal = document.createElement("td");
+    tdTotal.textContent = String(state.totals[i]);
+
+    tr.appendChild(tdName);
+    tr.appendChild(tdTotal);
     tbody.appendChild(tr);
   });
 
-  history.innerHTML=state.history.map(h=>"• "+h).join("<br>");
+  history.innerHTML = state.history.slice(0,12).map(h=>"• "+escapeHtml(h)).join("<br>");
 }
 
-function addRound(){
-  let round=[];
-  for(let i=0;i<state.names.length;i++){
-    if(state.out[i]) continue;
-    let v=prompt(state.names[i],"0");
-    if(v===null) return;
-    let n=+v||0;
-    state.totals[i]+=n;
-    round.push(`${state.names[i]} +${n}`);
-    if(state.totals[i]>=target.value) state.out[i]=true;
-  }
-  state.history.unshift("جولة: "+round.join(", "));
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, m => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
+}
+
+function editName(i){
+  const val = prompt(t("editName"), state.names[i]);
+  if(val === null) return;
+  const name = val.trim();
+  if(name) state.names[i] = name;
   save();
   render();
 }
 
 function addPlayer(){
-  let name=prompt("اسم اللاعب","Player "+(state.names.length+1));
-  if(!name) return;
+  if(state.names.length >= 10) return alert(t("maxPlayers"));
+  const val = prompt(t("addPlayer"), `Player ${state.names.length+1}`);
+  if(val === null) return;
+  const name = val.trim() || `Player ${state.names.length+1}`;
   state.names.push(name);
   state.totals.push(0);
   state.out.push(false);
@@ -205,24 +275,78 @@ function addPlayer(){
   render();
 }
 
-function editName(i){
-  let n=prompt("تعديل الاسم",state.names[i]);
-  if(!n) return;
-  state.names[i]=n;
+function addRound(){
+  const inIdx = state.names.map((_,i)=>i).filter(i=>!state.out[i]);
+  if(inIdx.length === 0) return;
+
+  const changes = [];
+  for(const i of inIdx){
+    const v = prompt(`${t("pointsFor")} ${state.names[i]}`, "0");
+    if(v === null) return;
+    const pts = Number(v) || 0;
+    state.totals[i] += pts;
+    changes.push(`${state.names[i]} +${pts}`);
+    if(state.totals[i] >= state.target) state.out[i] = true;
+  }
+
+  state.history.unshift(`${t("round")}: ${changes.join(", ")}`);
   save();
   render();
 }
 
-function resetGame(){
-  if(!confirm("تصفير كل النقاط؟"))return;
-  state.totals=state.totals.map(()=>0);
-  state.out=state.out.map(()=>false);
-  state.history=[];
+function resetTotals(){
+  if(!confirm(t("confirmReset"))) return;
+  state.totals = state.totals.map(()=>0);
+  state.out = state.out.map(()=>false);
+  state.history = [];
   save();
   render();
 }
 
+function startFromSetup(){
+  const n = Math.max(2, Math.min(10, Math.floor(+playersCount.value || 2)));
+  newGame(n);
+
+  // optional: rename players
+  for(let i=0;i<state.names.length;i++){
+    const v = prompt(`Name for ${state.names[i]}`, state.names[i]);
+    if(v === null) break;
+    const name = v.trim();
+    if(name) state.names[i] = name;
+  }
+
+  save();
+  showGame();
+}
+
+function newGameButton(){
+  if(!confirm(t("confirmNew"))) return;
+  showSetup();
+}
+
+btnStart.onclick = startFromSetup;
+btnAddRound.onclick = addRound;
+btnAddPlayer.onclick = addPlayer;
+btnReset.onclick = resetTotals;
+btnNewGame.onclick = newGameButton;
+btnGoSetup.onclick = showSetup;
+
+btnAR.onclick = ()=>{ state.lang="ar"; save(); applyLang(); render(); };
+btnEN.onclick = ()=>{ state.lang="en"; save(); applyLang(); render(); };
+
+target.onchange = ()=>{
+  state.target = Math.max(1, Math.floor(+target.value || 100));
+  // re-evaluate OUT based on new target
+  state.out = state.totals.map(x => x >= state.target);
+  save();
+  render();
+};
+
+// boot
 load();
+applyLang();
+if(state.names && state.names.length >= 2) showGame();
+else showSetup();
 </script>
 </body>
 </html>
