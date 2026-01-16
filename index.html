@@ -470,9 +470,9 @@
     </div>
 
     <div class="pills">
-      <div class="pill" id="pillRole">Role: <strong>Viewer</strong></div>
+      <div class="pill" id="pillRole">Role: <strong>&mdash;</strong></div>
       <div class="pill" id="pillMode"><strong>Local</strong></div>
-      <div class="pill" id="pillRoom">Room: <strong>â</strong></div>
+      <div class="pill" id="pillRoom">Room: <strong>&mdash;</strong></div>
     </div>
   </div>
 
@@ -499,20 +499,21 @@
     </div>
 
     <div class="helper" style="margin-top:10px;">
-      <span style="color:rgba(255,255,255,.8); font-weight:900;">Host link</span> = open once with <code>?host=1</code> on your phone (then it remembers).
+      <span style="color:rgba(255,255,255,.8); font-weight:900;">Host link</span>
+      = open once with <code>?host=1</code> on your phone (then it remembers).
     </div>
   </div>
 
   <!-- Game -->
   <div class="card" id="gameCard" style="display:none">
     <div class="row" id="hostControls">
-      <button class="primary" id="btnAddRound" type="button">â Add Round</button>
-      <button class="ghost" id="btnUndo" type="button">â©ï¸ Undo</button>
-      <button class="ghost" id="btnHistory" type="button">ð History</button>
-      <button class="ghost" id="btnAddPlayer" type="button">ð¤ Add Player</button>
-      <button class="ghost" id="btnReset" type="button">ð Reset</button>
-      <button class="ghost" id="btnGoSetup" type="button">âï¸ Setup</button>
-      <button class="ghost" id="btnNewGame" type="button">ð New Game</button>
+      <button class="primary" id="btnAddRound" type="button">➕ Add Round</button>
+      <button class="ghost" id="btnUndo" type="button">↩️ Undo</button>
+      <button class="ghost" id="btnHistory" type="button">📜 History</button>
+      <button class="ghost" id="btnAddPlayer" type="button">👤 Add Player</button>
+      <button class="ghost" id="btnReset" type="button">🔄 Reset</button>
+      <button class="ghost" id="btnGoSetup" type="button">⚙️ Setup</button>
+      <button class="ghost" id="btnNewGame" type="button">🆕 New Game</button>
     </div>
 
     <hr class="sep" id="hostSep">
@@ -521,7 +522,7 @@
       <div style="flex:1; min-width:220px">
         <label class="small" id="lblKick">Kick-out at</label><br>
         <input id="target" type="number" min="1" value="100">
-        <div class="helper" id="lblHint">Players become OUT when total â¥ target.</div>
+        <div class="helper" id="lblHint">Players become OUT when total &gt;= target.</div>
       </div>
 
       <div style="flex:1; min-width:260px">
@@ -539,13 +540,13 @@
     <div class="row" id="leaderRow" style="gap:12px; margin-top:10px;">
       <div class="leaderCard topCard" id="topCard">
         <div class="leaderTitle">TOP</div>
-        <div class="leaderName" id="topName">â</div>
+        <div class="leaderName" id="topName">&mdash;</div>
         <div class="leaderScore" id="topScore">0</div>
       </div>
 
       <div class="leaderCard lowCard" id="lowCard">
         <div class="leaderTitle">LOW</div>
-        <div class="leaderName" id="lowName">â</div>
+        <div class="leaderName" id="lowName">&mdash;</div>
         <div class="leaderScore" id="lowScore">0</div>
       </div>
     </div>
@@ -565,14 +566,14 @@
 
 <!-- Viewer lock toast -->
 <div id="viewerLock">
-  <div class="toast">VIEW MODE â scoreboard only (controlled by host)</div>
+  <div class="toast">VIEW MODE &mdash; scoreboard only (controlled by host)</div>
 </div>
 
 <!-- Splash -->
 <div id="splash">
   <div class="box">
     <div class="big">CHECK</div>
-    <div class="tiny" id="splashText">Letâs play â¨</div>
+    <div class="tiny" id="splashText">Let's play ✨</div>
   </div>
 </div>
 
@@ -589,7 +590,7 @@
 
     <div class="scoreRow">
       <input id="mPoints" readonly value="0" />
-      <button class="ghost" id="mX2" type="button">Ã2 OFF</button>
+      <button class="ghost" id="mX2" type="button">&times;2 OFF</button>
     </div>
 
     <div class="kpGrid" id="mKeypad">
@@ -604,7 +605,7 @@
       <button class="kp" data-k="9" type="button">9</button>
       <button class="kp" data-k="clear" type="button">C</button>
       <button class="kp" data-k="0" type="button">0</button>
-      <button class="kp" data-k="back" type="button">â«</button>
+      <button class="kp" data-k="back" type="button">⌫</button>
     </div>
 
     <div class="actions">
@@ -621,7 +622,7 @@
     <div class="topline">
       <div>
         <div class="nmTitle" id="nmTitle">Name</div>
-        <div class="nmSub" id="nmSub">Type a fun name â¨</div>
+        <div class="nmSub" id="nmSub">Type a fun name ✨</div>
       </div>
       <div class="logo"><img src="icons/icon-192.png" alt="CHECK"></div>
     </div>
@@ -669,16 +670,18 @@
   "use strict";
 
   /* ========= ROLE (HOST / VIEWER) =========
-     Host = open once with ?host=1 (then it remembers this phone)
-     Viewer = everyone else (including shared link)
+     Viewer is ONLY when ?view=1 is present.
+     Host is saved on your phone when you open once with ?host=1.
   */
   const spBoot = new URLSearchParams(location.search);
+
+  const IS_VIEWER = spBoot.get("view") === "1";
+
   const hostParam = spBoot.get("host") === "1";
   const savedHost = localStorage.getItem("CHECK_HOST") === "1";
   if (hostParam) localStorage.setItem("CHECK_HOST", "1");
 
-  const IS_HOST = hostParam || savedHost;
-  const IS_VIEWER = !IS_HOST;
+  const IS_HOST = !IS_VIEWER && (hostParam || savedHost);
 
   document.body.classList.toggle("viewer", IS_VIEWER);
   document.body.classList.toggle("host", IS_HOST);
@@ -790,51 +793,51 @@
   /* ========= i18n ========= */
   const I18N = {
     ar: {
-      brandSub: "ÙÙØ­Ø© Ø§ÙÙÙØ§Ø·",
-      setupTip: "Ø§ÙØ­ÙØ¸ ØªÙÙØ§Ø¦ÙÙØ§. Ø­Ø¯ÙØ¯ Room ÙÙØ¹Ø¨ Ø§ÙÙØ¨Ø§Ø´Ø± ÙØ¹ Ø£ØµØ¯ÙØ§Ø¦Ù.",
-      players: "Ø§ÙÙØ§Ø¹Ø¨ÙÙ",
-      start: "Ø§Ø¨Ø¯Ø£ Ø§ÙÙØ¹Ø¨Ø©",
-      lang: "Ø§ÙÙØºØ©",
-      kick: "Ø§ÙØ¥ÙØµØ§Ø¡ Ø¹ÙØ¯",
-      hint: "ÙØµØ¨Ø­ Ø§ÙÙØ§Ø¹Ø¨ OUT Ø¹ÙØ¯ÙØ§ Ø§ÙÙØ¬ÙÙØ¹ â¥ Ø§ÙÙØ¯Ù.",
+      brandSub: "لوحة النقاط",
+      setupTip: "الحفظ تلقائيًا. حدّد Room للعب المباشر مع أصدقائك.",
+      players: "اللاعبين",
+      start: "ابدأ اللعبة",
+      lang: "اللغة",
+      kick: "الإقصاء عند",
+      hint: "يصبح اللاعب OUT عندما المجموع >= الهدف.",
       room: "Room",
-      roomHelp: "Ø§Ø±Ø³Ù Ø§ÙØ±Ø§Ø¨Ø· ÙÙØ§Ø¹Ø¨ÙÙ (ÙØ´ÙÙÙÙ Ø§ÙÙÙØ­Ø© ÙÙØ·).",
-      addRound: "â Ø¬ÙÙØ©",
-      undo: "â©ï¸ ØªØ±Ø§Ø¬Ø¹",
-      history: "ð Ø§ÙØ¬ÙÙØ§Øª",
-      addPlayer: "ð¤ ÙØ§Ø¹Ø¨",
-      reset: "ð ØªØµÙÙØ±",
-      setup: "âï¸ Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª",
-      newGame: "ð ÙØ¹Ø¨Ø© Ø¬Ø¯ÙØ¯Ø©",
-      thPlayer: "Ø§ÙÙØ§Ø¹Ø¨",
-      thTotal: "Ø§ÙÙØ¬ÙÙØ¹",
+      roomHelp: "ارسل الرابط للاعبين (يشوفون اللوحة فقط).",
+      addRound: "➕ جولة",
+      undo: "↩️ تراجع",
+      history: "📜 الجولات",
+      addPlayer: "👤 لاعب",
+      reset: "🔄 تصفير",
+      setup: "⚙️ إعدادات",
+      newGame: "🆕 لعبة جديدة",
+      thPlayer: "اللاعب",
+      thTotal: "المجموع",
       out: "OUT",
-      maxPlayers: "Ø§ÙØ­Ø¯ Ø§ÙØ£ÙØµÙ 10 ÙØ§Ø¹Ø¨ÙÙ.",
-      confirmReset: "ØªØµÙÙØ± ÙÙ Ø§ÙÙÙØ§Ø· ÙØ¥Ø±Ø¬Ø§Ø¹ Ø§ÙØ¬ÙÙØ¹ INØ",
-      confirmNew: "Ø¨Ø¯Ø¡ ÙØ¹Ø¨Ø© Ø¬Ø¯ÙØ¯Ø©Ø (Ø³ÙØªÙ ÙØ³Ø­ Ø§ÙØ­Ø§ÙÙ)",
-      splash: "Letâs play â¨",
+      maxPlayers: "الحد الأقصى 10 لاعبين.",
+      confirmReset: "تصفير كل النقاط وإرجاع الجميع IN؟",
+      confirmNew: "بدء لعبة جديدة؟ (سيتم مسح الحالي)",
+      splash: "Let’s play ✨",
       local: "Local",
       live: "Live",
-      setRoomFirst: "Ø§ÙØªØ¨ Room Ø£ÙÙØ§Ù",
-      copied: "ØªÙ ÙØ³Ø® Ø§ÙØ±Ø§Ø¨Ø·",
-      modalNext: "Ø§ÙØªØ§ÙÙ",
-      modalSkip: "ØªØ®Ø·Ù",
-      modalCancel: "Ø¥ÙØºØ§Ø¡",
-      modalRound: "Ø¬ÙÙØ©",
-      modalTotal: "ÙØ¬ÙÙØ¹Ù Ø§ÙØ­Ø§ÙÙ",
-      nmTitleAdd: "Ø§Ø³Ù Ø§ÙÙØ§Ø¹Ø¨",
-      nmTitleEdit: "ØªØ¹Ø¯ÙÙ Ø§ÙØ§Ø³Ù",
-      nmSub: "Ø§Ø®ØªØ± Ø§Ø³Ù ÙØ·ÙÙ â¨",
-      nmSave: "Ø­ÙØ¸",
-      nmCancel: "Ø¥ÙØºØ§Ø¡",
+      setRoomFirst: "اكتب Room أولاً",
+      copied: "تم نسخ الرابط",
+      modalNext: "التالي",
+      modalSkip: "تخطي",
+      modalCancel: "إلغاء",
+      modalRound: "جولة",
+      modalTotal: "مجموعه الحالي",
+      nmTitleAdd: "اسم اللاعب",
+      nmTitleEdit: "تعديل الاسم",
+      nmSub: "اختر اسم لطيف ✨",
+      nmSave: "حفظ",
+      nmCancel: "إلغاء",
       roleHost: "Host",
       roleView: "Viewer",
-      viewToast: "ÙØ¶Ø¹ Ø§ÙØ¹Ø±Ø¶ â Ø§ÙÙÙØ­Ø© ÙÙØ· (Ø§ÙØªØ­ÙÙ Ø¹ÙØ¯ Ø§ÙÙÙØ³Øª)",
+      viewToast: "وضع العرض — اللوحة فقط (التحكم عند الهوست)",
       shareText: "Share",
-      roundHistory: "Ø³Ø¬Ù Ø§ÙØ¬ÙÙØ§Øª",
-      clear: "ÙØ³Ø­",
-      close: "Ø¥ØºÙØ§Ù",
-      kicked: "OUT â",
+      roundHistory: "سجل الجولات",
+      clear: "مسح",
+      close: "إغلاق",
+      kicked: "OUT ✅",
     },
     en: {
       brandSub: "Scoreboard",
@@ -843,23 +846,23 @@
       start: "Start Game",
       lang: "Language",
       kick: "Kick-out at",
-      hint: "Players become OUT when total â¥ target.",
+      hint: "Players become OUT when total >= target.",
       room: "Room",
       roomHelp: "Share the link so players only see the scoreboard.",
-      addRound: "â Add Round",
-      undo: "â©ï¸ Undo",
-      history: "ð History",
-      addPlayer: "ð¤ Add Player",
-      reset: "ð Reset",
-      setup: "âï¸ Setup",
-      newGame: "ð New Game",
+      addRound: "➕ Add Round",
+      undo: "↩️ Undo",
+      history: "📜 History",
+      addPlayer: "👤 Add Player",
+      reset: "🔄 Reset",
+      setup: "⚙️ Setup",
+      newGame: "🆕 New Game",
       thPlayer: "Player",
       thTotal: "Total",
       out: "OUT",
       maxPlayers: "Max players is 10.",
       confirmReset: "Reset all totals and set everyone IN?",
       confirmNew: "Start a new game? (clears current)",
-      splash: "Letâs play â¨",
+      splash: "Let’s play ✨",
       local: "Local",
       live: "Live",
       setRoomFirst: "Enter a room first",
@@ -871,17 +874,17 @@
       modalTotal: "Current total",
       nmTitleAdd: "Player name",
       nmTitleEdit: "Edit name",
-      nmSub: "Pick a fun name â¨",
+      nmSub: "Pick a fun name ✨",
       nmSave: "Save",
       nmCancel: "Cancel",
       roleHost: "Host",
       roleView: "Viewer",
-      viewToast: "VIEW MODE â scoreboard only (controlled by host)",
+      viewToast: "VIEW MODE — scoreboard only (controlled by host)",
       shareText: "Share",
       roundHistory: "Round History",
       clear: "Clear",
       close: "Close",
-      kicked: "is OUT â",
+      kicked: "is OUT ✅",
     }
   };
 
@@ -934,7 +937,14 @@
 
   /* ========= Viewer hard-lock ========= */
   if(IS_VIEWER){
-    document.getElementById("viewerLock").style.display = "block";
+    el.viewerLock.style.display = "block";
+
+    // Disable all controls (but viewer CSS also hides most anyway)
+    document.querySelectorAll("button,input,select,textarea").forEach(x=>{
+      x.setAttribute("disabled","disabled");
+    });
+
+    // Block clicks just in case something remains visible
     document.addEventListener("click", (e)=>{
       const target = e.target.closest("button,input,select,textarea,a");
       if(target){
@@ -969,9 +979,7 @@
   addEventListener("resize", resizeConf);
 
   function showCheck(name){
-    el.checkBannerSub.textContent = state.lang === "ar"
-      ? `${name} ${t("kicked")}`
-      : `${name} ${t("kicked")}`;
+    el.checkBannerSub.textContent = `${name} ${t("kicked")}`;
     el.checkBanner.style.display = "block";
     conf.style.display = "block";
     resizeConf();
@@ -1083,8 +1091,8 @@
   function updatePills(extraPresenceText=""){
     const liveOk = firebaseReady && room;
     const liveText = liveOk ? t("live") : t("local");
-    el.pillMode.innerHTML = `<strong>${liveText}</strong>${extraPresenceText ? " Â· " + extraPresenceText : ""}`;
-    el.pillRoom.innerHTML = `Room: <strong>${room ? room : "â"}</strong>`;
+    el.pillMode.innerHTML = `<strong>${liveText}</strong>${extraPresenceText ? " · " + extraPresenceText : ""}`;
+    el.pillRoom.innerHTML = `Room: <strong>${room ? room : "&mdash;"}</strong>`;
   }
 
   function showSetup(){
@@ -1131,8 +1139,8 @@
   function renderHistoryDrawer(){
     const items = (state.history || []).slice(0, 50);
     el.historyList.innerHTML = items.length
-      ? items.map(h => `<div class="item">â¢ ${escapeHtml(h)}</div>`).join("")
-      : `<div style="color:rgba(255,255,255,.55); padding:10px;">â</div>`;
+      ? items.map(h => `<div class="item">&bull; ${escapeHtml(h)}</div>`).join("")
+      : `<div style="color:rgba(255,255,255,.55); padding:10px;">&mdash;</div>`;
   }
 
   function render(){
@@ -1147,7 +1155,7 @@
       void el.topCard.offsetWidth;
       el.topCard.classList.add("pop","glowTop");
     } else {
-      el.topName.textContent = "â";
+      el.topName.textContent = "—";
       el.topScore.textContent = "0";
     }
 
@@ -1158,7 +1166,7 @@
       void el.lowCard.offsetWidth;
       el.lowCard.classList.add("pop","glowLow");
     } else {
-      el.lowName.textContent = "â";
+      el.lowName.textContent = "—";
       el.lowScore.textContent = "0";
     }
 
@@ -1252,7 +1260,7 @@
 
       const setX2 = (v)=>{
         x2 = v;
-        el.mX2.textContent = x2 ? "Ã2 ON" : "Ã2 OFF";
+        el.mX2.textContent = x2 ? "×2 ON" : "×2 OFF";
         el.mX2.classList.toggle("on", x2);
       };
 
@@ -1396,10 +1404,41 @@
       initialValue: defaultName
     });
 
-    const name = val || defaultName;
+        const name = val || defaultName;
+
+    // snapshot (undo)
+    state.snapshots.unshift({
+      names: [...state.names],
+      totals: [...state.totals],
+      out: [...state.out],
+      history: [...state.history],
+      target: state.target
+    });
+    state.snapshots = state.snapshots.slice(0, 20);
+
     state.names.push(name);
     state.totals.push(0);
     state.out.push(false);
+
+    state.history.unshift(`+ Player: ${name}`);
+    saveLocal();
+    render();
+    pushRemoteDebounced(true);
+    buzz();
+  }
+
+  function undoLast(){
+    if(IS_VIEWER) return;
+    const snap = state.snapshots.shift();
+    if(!snap) return;
+
+    state.names = [...snap.names];
+    state.totals = [...snap.totals];
+    state.out = [...snap.out];
+    state.history = [...snap.history];
+    state.target = snap.target;
+
+    el.target.value = state.target || 100;
 
     saveLocal();
     render();
@@ -1407,10 +1446,28 @@
     buzz();
   }
 
+  function openHistory(){
+    el.historyDrawer.style.display = "block";
+    renderHistoryDrawer();
+  }
+
+  function closeHistory(){
+    el.historyDrawer.style.display = "none";
+  }
+
+  function clearHistory(){
+    if(IS_VIEWER) return;
+    state.history = [];
+    saveLocal();
+    renderHistoryDrawer();
+    pushRemoteDebounced(true);
+  }
+
   function resetTotals(){
     if(IS_VIEWER) return;
     if(!confirm(t("confirmReset"))) return;
 
+    // snapshot (undo)
     state.snapshots.unshift({
       names: [...state.names],
       totals: [...state.totals],
@@ -1422,46 +1479,25 @@
 
     state.totals = state.totals.map(()=>0);
     state.out = state.out.map(()=>false);
+    state.history.unshift("RESET");
+    saveLocal();
+    render();
+    pushRemoteDebounced(true);
+    buzz();
+  }
+
+  function goNewGame(){
+    if(IS_VIEWER) return;
+    if(!confirm(t("confirmNew"))) return;
+
+    state.names = [];
+    state.totals = [];
+    state.out = [];
     state.history = [];
+    state.snapshots = [];
     saveLocal();
-    render();
     pushRemoteDebounced(true);
-    buzz();
-  }
-
-  function undo(){
-    if(IS_VIEWER) return;
-    const snap = (state.snapshots || []).shift();
-    if(!snap) return;
-
-    state.names = snap.names;
-    state.totals = snap.totals;
-    state.out = snap.out;
-    state.history = snap.history;
-    state.target = snap.target;
-    el.target.value = state.target;
-
-    saveLocal();
-    render();
-    pushRemoteDebounced(true);
-    buzz();
-  }
-
-  function openHistory(){
-    if(IS_VIEWER) return;
-    renderHistoryDrawer();
-    el.historyDrawer.style.display = "block";
-  }
-  function closeHistory(){
-    el.historyDrawer.style.display = "none";
-  }
-  function clearHistory(){
-    if(IS_VIEWER) return;
-    state.history = [];
-    saveLocal();
-    render();
-    pushRemoteDebounced(true);
-    buzz();
+    showSetup();
   }
 
   /* ========= Live Share (Firebase RTDB) ========= */
@@ -1504,39 +1540,39 @@
     }
   }
 
-  function roomStatePath(r){ return `rooms/${r}/state`; }
-  function presencePath(r){ return `rooms/${r}/presence`; }
+  function roomPath(r){ return `rooms/${r}/state`; }
 
   function attachListener(){
     if(!firebaseReady || !firebaseDb || !room) return;
+
     if(listenerRef){ listenerRef.off(); listenerRef=null; }
-    listenerRef = firebaseDb.ref(roomStatePath(room));
+    listenerRef = firebaseDb.ref(roomPath(room));
 
     listenerRef.on("value", snap=>{
       const remote = snap.val();
       if(!remote || typeof remote !== "object") return;
-
       if(remote._by === clientId) return;
 
       const ts = Number(remote._ts || 0);
       if(ts <= lastAppliedTs) return;
       lastAppliedTs = ts;
 
-      state.lang = (remote.lang==="ar"||remote.lang==="en") ? remote.lang : state.lang;
-      state.names = Array.isArray(remote.names) ? remote.names : state.names;
+      // Apply remote -> state
+      state.lang   = (remote.lang==="ar"||remote.lang==="en") ? remote.lang : state.lang;
+      state.names  = Array.isArray(remote.names) ? remote.names : state.names;
       state.totals = Array.isArray(remote.totals) ? remote.totals : state.totals;
-      state.out = Array.isArray(remote.out) ? remote.out : state.out;
-      state.history = Array.isArray(remote.history) ? remote.history : state.history;
+      state.out    = Array.isArray(remote.out) ? remote.out : state.out;
+      state.history= Array.isArray(remote.history) ? remote.history : state.history;
       state.target = Number.isFinite(remote.target) ? remote.target : state.target;
-
-      if(!Array.isArray(state.snapshots)) state.snapshots = [];
 
       el.target.value = state.target || 100;
 
+      // viewers should never write; host can keep local in sync
       if(IS_HOST) localStorage.setItem(KEY, JSON.stringify(state));
 
       applyLang();
       render();
+      updatePills();
     });
 
     updatePills();
@@ -1551,6 +1587,7 @@
   async function pushRemote(force=false){
     if(IS_VIEWER) return;
     if(!room) return;
+
     const ok = await ensureFirebase();
     if(!ok) return;
 
@@ -1565,31 +1602,8 @@
       _ts: Date.now()
     };
 
-    firebaseDb.ref(roomStatePath(room)).set(payload).catch(()=>{});
+    firebaseDb.ref(roomPath(room)).set(payload).catch(()=>{});
     updatePills();
-  }
-
-  function startPresence(){
-    if(!firebaseReady || !firebaseDb || !room) return;
-
-    const ref = firebaseDb.ref(`${presencePath(room)}/${clientId}`);
-    ref.onDisconnect().remove();
-    ref.set({ role: IS_HOST ? "host" : "viewer", ts: Date.now() }).catch(()=>{});
-
-    setInterval(()=> ref.update({ ts: Date.now() }).catch(()=>{}), 20000);
-
-    firebaseDb.ref(presencePath(room)).on("value", (snap)=>{
-      const obj = snap.val() || {};
-      const ids = Object.keys(obj);
-      const viewers = ids.filter(id => obj[id]?.role === "viewer").length;
-      const hosts = ids.filter(id => obj[id]?.role === "host").length;
-
-      if(IS_HOST){
-        updatePills(`ð ${viewers} Â· ðï¸ ${hosts}`);
-      }else{
-        updatePills();
-      }
-    });
   }
 
   async function setRoom(){
@@ -1612,17 +1626,22 @@
     if(!ok){ updatePills(); return; }
 
     attachListener();
-    startPresence();
     pushRemoteDebounced(true);
-    buzz();
   }
 
   function makeViewerLink(){
     const url = new URL(location.href);
+
+    // Always viewer for shared link
+    url.searchParams.set("view", "1");
+
+    // carry room + lang
     url.searchParams.set("room", room);
     url.searchParams.set("lang", state.lang);
-    url.searchParams.delete("host"); // viewer-safe
-    url.searchParams.delete("view"); // just in case
+
+    // never share host
+    url.searchParams.delete("host");
+
     return url.toString();
   }
 
@@ -1640,38 +1659,44 @@
   }
 
   /* ========= Events ========= */
+  // Host-only buttons
   el.btnStart.onclick = startGame;
   el.btnAddRound.onclick = addRound;
   el.btnAddPlayer.onclick = addPlayer;
   el.btnReset.onclick = resetTotals;
-  el.btnUndo.onclick = undo;
+  el.btnUndo.onclick = undoLast;
 
-  el.btnHistory.onclick = openHistory;
+  el.btnHistory.onclick = ()=> { if(!IS_VIEWER) openHistory(); };
   el.btnCloseHistory.onclick = closeHistory;
   el.btnClearHistory.onclick = clearHistory;
-  el.historyDrawer.onclick = (e)=>{
+
+  // Close drawer when tapping background
+  el.historyDrawer.addEventListener("click", (e)=>{
     if(e.target === el.historyDrawer) closeHistory();
-  };
+  });
 
   el.btnGoSetup.onclick = ()=> { if(!IS_VIEWER) showSetup(); };
-  el.btnNewGame.onclick = ()=> {
+  el.btnNewGame.onclick = goNewGame;
+
+  // Language
+  el.btnAR.onclick = ()=>{
     if(IS_VIEWER) return;
-    if(confirm(t("confirmNew"))){
-      state.names = [];
-      state.totals = [];
-      state.out = [];
-      state.history = [];
-      state.snapshots = [];
-      saveLocal();
-      pushRemoteDebounced(true);
-      showSetup();
-      buzz();
-    }
+    state.lang = "ar";
+    saveLocal();
+    applyLang();
+    render();
+    pushRemoteDebounced(true);
+  };
+  el.btnEN.onclick = ()=>{
+    if(IS_VIEWER) return;
+    state.lang = "en";
+    saveLocal();
+    applyLang();
+    render();
+    pushRemoteDebounced(true);
   };
 
-  el.btnAR.onclick = ()=>{ if(IS_VIEWER) return; state.lang="ar"; saveLocal(); applyLang(); render(); pushRemoteDebounced(true); buzz(); };
-  el.btnEN.onclick = ()=>{ if(IS_VIEWER) return; state.lang="en"; saveLocal(); applyLang(); render(); pushRemoteDebounced(true); buzz(); };
-
+  // Kick-out target
   el.target.onchange = ()=>{
     if(IS_VIEWER) return;
     state.target = Math.max(1, Math.floor(Number(el.target.value)||100));
@@ -1679,21 +1704,23 @@
     saveLocal();
     render();
     pushRemoteDebounced(true);
-    buzz();
   };
 
+  // Room
   el.btnSetRoom.onclick = setRoom;
   el.btnShareRoom.onclick = shareRoom;
 
   /* ========= Boot ========= */
   loadLocal();
 
-  // URL params: room/lang (viewer-safe; does not make them host)
+  // URL params: room/lang for viewers (and optional for hosts)
   try{
     const sp = new URLSearchParams(location.search);
     const r = cleanRoom(sp.get("room"));
     const l = sp.get("lang");
+
     if(l === "ar" || l === "en") state.lang = l;
+
     if(r){
       room = r;
       localStorage.setItem(KEY_ROOM, room);
@@ -1702,38 +1729,31 @@
 
   applyLang();
 
-  // Everyone loads the scoreboard screen. Host additionally sees setup.
-  el.gameCard.style.display = "";
-  el.setupCard.style.display = IS_HOST ? "" : "none";
-
-  if(IS_HOST && state.names && state.names.length >= 2){
+  // Show game if we already have data, otherwise setup (host)
+  if(state.names && state.names.length >= 2){
     showGame();
-  }else if(IS_HOST){
-    showSetup();
   }else{
-    showGame();
+    showSetup();
   }
 
   el.roomInput.value = room || "";
-  el.target.value = state.target || 100;
-  render();
+  updatePills();
 
-  // Firebase auto-connect if room exists
+  // If viewer: always show scoreboard even if empty
+  if(IS_VIEWER){
+    el.gameCard.style.display = "";
+    el.setupCard.style.display = "none";
+  }
+
+  // Auto-connect firebase when room exists
   if(room){
     ensureFirebase().then(ok=>{
-      if(ok){
-        attachListener();
-        startPresence();
-      }
+      if(ok) attachListener();
       updatePills();
     });
   }
-
-  // Optional: service worker (only if you create sw.js)
-  // if ("serviceWorker" in navigator) {
-  //   navigator.serviceWorker.register("./sw.js").catch(()=>{});
-  // }
 })();
 </script>
 </body>
 </html>
+   
