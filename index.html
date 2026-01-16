@@ -7,14 +7,15 @@
   <title>Game Score</title>
   <style>
     :root{ color-scheme: light dark; }
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;margin:16px;max-width:900px}
-    h1{margin:0 0 12px}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;margin:16px;max-width:980px}
+    h1{margin:0 0 10px}
     .card{border:1px solid #e5e5e5;border-radius:16px;padding:14px;margin:12px 0}
     .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    input,button{padding:10px 12px;border-radius:12px;border:1px solid #cfcfcf;font-size:16px}
+    input,button,select{padding:10px 12px;border-radius:12px;border:1px solid #cfcfcf;font-size:16px}
     button{cursor:pointer}
-    button.primary{font-weight:700}
+    button.primary{font-weight:800}
     .muted{opacity:.75;font-size:13px}
+    .danger{border-color:#d33}
     table{width:100%;border-collapse:collapse;margin-top:10px}
     th,td{padding:10px;border-bottom:1px solid #eee;text-align:center}
     th:first-child, td:first-child{text-align:left}
@@ -23,50 +24,221 @@
     .low{background:#F6B3B3;color:#000}
     .outRow{background:#2b2b2b}
     .outText{color:#9a9a9a}
-    @media (max-width:640px){ input{width:110px} }
+    .pill{display:inline-flex;gap:8px;align-items:center;padding:8px 10px;border:1px solid #cfcfcf;border-radius:999px}
+    .right{margin-left:auto}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    @media (max-width:700px){ .grid2{grid-template-columns:1fr} }
+    dialog{border:none;border-radius:16px;padding:0;max-width:920px;width:min(920px, calc(100% - 18px));}
+    dialog::backdrop{background:rgba(0,0,0,.55)}
+    .dlgHead{padding:14px 14px 10px;border-bottom:1px solid #ddd}
+    .dlgBody{padding:14px;max-height:70vh;overflow:auto}
+    .dlgFoot{padding:12px 14px;border-top:1px solid #ddd;display:flex;gap:10px;justify-content:flex-end}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
   </style>
 </head>
+
 <body>
-  <h1>Game Score</h1>
+  <h1 id="title">Game Score</h1>
 
   <div class="card" id="setupCard">
-    <div class="row">
-      <input id="playerCount" type="number" min="2" max="10" value="2" />
-      <button class="primary" id="startBtn">Start / New Game</button>
-      <span class="muted">Auto-saves on this device.</span>
+    <div class="grid2">
+      <div>
+        <div class="row">
+          <label class="muted" id="lblPlayers">Players</label>
+          <input id="playerCount" type="number" min="2" max="10" value="2" />
+          <button class="primary" id="startBtn">Start / New Game</button>
+        </div>
+        <div class="muted" id="tip1">Tip: This app auto-saves.</div>
+      </div>
+
+      <div>
+        <div class="row">
+          <span class="pill">
+            <span class="muted" id="lblRoom">Room</span>
+            <b class="mono" id="roomText">—</b>
+            <button id="setRoomBtn">Set</button>
+          </span>
+          <span class="pill right">
+            <span class="muted" id="lblLang">Language</span>
+            <button id="langBtn">AR</button>
+          </span>
+        </div>
+        <div class="muted" id="tip2">For live shared scores, set a Room and enable Firebase config (one time).</div>
+      </div>
     </div>
-    <div class="muted">Tip: Safari → Share → Add to Home Screen.</div>
   </div>
 
   <div class="card" id="appCard" style="display:none">
     <div class="row" style="justify-content:space-between">
       <div class="row">
         <button class="primary" id="addRoundBtn">ADD ROUND</button>
+        <button id="undoBtn">UNDO</button>
+        <button id="historyBtn">HISTORY</button>
         <button id="addPlayerBtn">ADD PLAYER</button>
         <button id="editNamesBtn">EDIT NAMES</button>
       </div>
       <div class="row">
-        <label class="mutlue muted">Kick-out target:</label>
+        <label class="muted" id="lblTarget">Kick-out target:</label>
         <input id="targetInput" type="number" min="1" value="100" style="width:110px" />
-        <button id="resetBtn">RESET</button>
+        <button id="resetBtn" class="danger">RESET</button>
       </div>
     </div>
 
-    <div class="muted" id="statusLine"></div>
+    <div class="row" style="margin-top:10px">
+      <span class="pill">
+        <span class="muted" id="lblRoom2">Room</span>
+        <b class="mono" id="roomText2">—</b>
+        <button id="copyLinkBtn">Copy Link</button>
+      </span>
+      <span class="pill right">
+        <span class="muted" id="lblSync">Sync</span>
+        <b id="syncState">LOCAL</b>
+      </span>
+    </div>
+
+    <div class="muted" id="statusLine" style="margin-top:10px"></div>
     <div id="tableWrap"></div>
   </div>
 
-<script>
-const STORAGE_KEY = "gameScore_web_v1";
-let state = null;
+  <!-- History dialog -->
+  <dialog id="historyDlg">
+    <div class="dlgHead">
+      <b id="histTitle">Round History</b>
+      <div class="muted" id="histSub">Tap a round to see details.</div>
+    </div>
+    <div class="dlgBody" id="histBody"></div>
+    <div class="dlgFoot">
+      <button id="closeHistBtn">Close</button>
+    </div>
+  </dialog>
 
-function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
-function load(){
+<script>
+/* ==========================
+   CONFIG / STORAGE
+========================== */
+const STORAGE_KEY = "gameScore_web_v2";
+const ROOM_KEY = "gameScore_room_v1";
+const LANG_KEY = "gameScore_lang_v1";
+
+let state = null;
+let lang = localStorage.getItem(LANG_KEY) || "en"; // "en" | "ar"
+let room = localStorage.getItem(ROOM_KEY) || "";   // shared room code
+let clientId = crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random();
+
+/* ==========================
+   I18N STRINGS
+========================== */
+const STR = {
+  en: {
+    title: "Game Score",
+    players: "Players",
+    start: "Start / New Game",
+    tip1: "Tip: This app auto-saves.",
+    tip2: "For live shared scores, set a Room and enable Firebase config (one time).",
+    room: "Room",
+    set: "Set",
+    language: "Language",
+    target: "Kick-out target:",
+    addRound: "ADD ROUND",
+    undo: "UNDO",
+    history: "HISTORY",
+    addPlayer: "ADD PLAYER",
+    editNames: "EDIT NAMES",
+    reset: "RESET",
+    copyLink: "Copy Link",
+    sync: "Sync",
+    local: "LOCAL",
+    online: "ONLINE",
+    statusFmt: (all,inC,outC,t)=>`Players: ${all} (IN: ${inC}, OUT: ${outC}) • OUT when total ≥ ${t}.`,
+    namePrompt: (i,def)=>`Name for Player ${i}:`,
+    newPlayer: "New player name:",
+    pointsFor: n=>`Points for ${n}:`,
+    noPlayers: "Everyone is OUT. Reset or start a new game.",
+    maxPlayers: "Max players is 10.",
+    resetQ: "Reset totals to 0 and set everyone IN? (Names stay)",
+    setRoomTitle: "Set Room",
+    setRoomMsg: "Enter a room code (example: majlis1). Same code = same live scores.",
+    setRoomPh: "room code",
+    roomEmpty: "Room code cannot be empty.",
+    needFirebase: "Live sync needs Firebase config in index.html (see instructions).",
+    histTitle: "Round History",
+    histSub: "Latest rounds at top.",
+    histEmpty: "No rounds yet.",
+    undoEmpty: "Nothing to undo.",
+    out: "OUT (skipped)",
+    in: "IN",
+    top: "TOP",
+    low: "LOW",
+    round: n=>`Round ${n}`,
+    at: t=>`at ${t}`,
+    details: "Details",
+  },
+  ar: {
+    title: "تسجيل النقاط",
+    players: "عدد اللاعبين",
+    start: "ابدأ / لعبة جديدة",
+    tip1: "ملاحظة: الحفظ تلقائي على الجهاز.",
+    tip2: "للمشاركة المباشرة: ضع Room ثم فعّل Firebase مرة واحدة.",
+    room: "الغرفة",
+    set: "تعيين",
+    language: "اللغة",
+    target: "حد الإقصاء:",
+    addRound: "إضافة جولة",
+    undo: "تراجع",
+    history: "السجل",
+    addPlayer: "إضافة لاعب",
+    editNames: "تعديل الأسماء",
+    reset: "إعادة ضبط",
+    copyLink: "نسخ الرابط",
+    sync: "مزامنة",
+    local: "محلي",
+    online: "مباشر",
+    statusFmt: (all,inC,outC,t)=>`اللاعبون: ${all} (داخل: ${inC}، خارج: ${outC}) • خروج عند مجموع ≥ ${t}.`,
+    namePrompt: (i,def)=>`اسم اللاعب ${i}:`,
+    newPlayer: "اسم اللاعب الجديد:",
+    pointsFor: n=>`نقاط ${n}:`,
+    noPlayers: "كل اللاعبين خارجين. أعد الضبط أو ابدأ لعبة جديدة.",
+    maxPlayers: "الحد الأعلى 10 لاعبين.",
+    resetQ: "إعادة كل النقاط إلى 0 وجعل الجميع داخل؟ (الأسماء تبقى)",
+    setRoomTitle: "تعيين غرفة",
+    setRoomMsg: "اكتب كود الغرفة (مثال: majlis1). نفس الكود = نفس النقاط للجميع.",
+    setRoomPh: "كود الغرفة",
+    roomEmpty: "لازم تكتب كود الغرفة.",
+    needFirebase: "المزامنة المباشرة تحتاج إعدادات Firebase داخل index.html.",
+    histTitle: "سجل الجولات",
+    histSub: "أحدث الجولات بالأعلى.",
+    histEmpty: "لا يوجد جولات بعد.",
+    undoEmpty: "لا يوجد شيء للتراجع.",
+    out: "خارج (مستبعد)",
+    in: "داخل",
+    top: "الأعلى",
+    low: "الأقل",
+    round: n=>`جولة ${n}`,
+    at: t=>`الوقت ${t}`,
+    details: "تفاصيل",
+  }
+};
+
+function T(key, ...args){
+  const v = STR[lang][key];
+  return (typeof v === "function") ? v(...args) : v;
+}
+
+/* ==========================
+   STATE + HISTORY
+========================== */
+function saveLocal(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+function loadLocal(){
   try{
     const raw = localStorage.getItem(STORAGE_KEY);
     if(!raw) return null;
     const s = JSON.parse(raw);
     if(!s || !Array.isArray(s.players)) return null;
+    // ensure history
+    if(!Array.isArray(s.rounds)) s.rounds = [];
+    if(!Number.isFinite(s.target) || s.target < 1) s.target = 100;
     return s;
   }catch{ return null; }
 }
@@ -74,15 +246,18 @@ function load(){
 function newGame(n){
   state = {
     target: 100,
-    players: Array.from({length:n}, (_,i)=>({ name:`Player ${i+1}`, total:0, out:false }))
+    players: Array.from({length:n}, (_,i)=>({ name:`Player ${i+1}`, total:0, out:false })),
+    rounds: [], // history: [{ts, deltas:[...]}]
+    lastWriteBy: clientId,
+    updatedAt: Date.now()
   };
-  save();
+  saveLocal();
 }
 
-function escapeHtml(s){
-  return String(s).replace(/[&<>"']/g, m => ({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-  }[m]));
+function applyKickouts(){
+  for(const p of state.players){
+    if(!p.out && p.total >= state.target) p.out = true;
+  }
 }
 
 function computeTopLowIndex(){
@@ -97,23 +272,72 @@ function computeTopLowIndex(){
   return {top, low, allEqual};
 }
 
-function applyKickouts(){
-  for(const p of state.players){
-    if(!p.out && p.total >= state.target) p.out = true;
+function fmtTime(ts){
+  try{
+    return new Date(ts).toLocaleString(lang==="ar" ? "ar" : undefined, {hour:"2-digit", minute:"2-digit"});
+  }catch{
+    return new Date(ts).toLocaleTimeString();
   }
 }
 
+/* ==========================
+   UI HELPERS
+========================== */
 async function promptNames(players){
   for(let i=0;i<players.length;i++){
-    const name = prompt(`Name for Player ${i+1}:`, players[i].name);
+    const def = players[i].name;
+    const name = prompt(T("namePrompt", i+1, def), def);
     if(name===null) return false;
-    players[i].name = name.trim() || players[i].name;
+    players[i].name = name.trim() || def;
   }
   return true;
 }
 
+function setText(id, txt){ document.getElementById(id).textContent = txt; }
+function setBtn(id, txt){ document.getElementById(id).textContent = txt; }
+
+function applyLang(){
+  document.documentElement.lang = (lang==="ar") ? "ar" : "en";
+  document.body.dir = (lang==="ar") ? "rtl" : "ltr";
+
+  setText("title", T("title"));
+  setText("lblPlayers", T("players"));
+  setBtn("startBtn", T("start"));
+  setText("tip1", T("tip1"));
+  setText("tip2", T("tip2"));
+  setText("lblRoom", T("room"));
+  setBtn("setRoomBtn", T("set"));
+  setText("lblLang", T("language"));
+  setBtn("langBtn", (lang==="ar") ? "EN" : "AR");
+
+  setBtn("addRoundBtn", T("addRound"));
+  setBtn("undoBtn", T("undo"));
+  setBtn("historyBtn", T("history"));
+  setBtn("addPlayerBtn", T("addPlayer"));
+  setBtn("editNamesBtn", T("editNames"));
+  setText("lblTarget", T("target"));
+  setBtn("resetBtn", T("reset"));
+  setText("lblRoom2", T("room"));
+  setBtn("copyLinkBtn", T("copyLink"));
+  setText("lblSync", T("sync"));
+
+  setText("histTitle", T("histTitle"));
+  setText("histSub", T("histSub"));
+
+  render();
+}
+
+/* ==========================
+   RENDER
+========================== */
 function render(){
-  if(!state) return;
+  setText("roomText", room || "—");
+  setText("roomText2", room || "—");
+
+  if(!state){
+    document.getElementById("appCard").style.display = "none";
+    return;
+  }
 
   document.getElementById("appCard").style.display = "";
   document.getElementById("targetInput").value = state.target;
@@ -122,11 +346,10 @@ function render(){
   const outCount = state.players.filter(p=>p.out).length;
   const inCount = state.players.length - outCount;
 
-  document.getElementById("statusLine").textContent =
-    `Players: ${state.players.length} (IN: ${inCount}, OUT: ${outCount}) • OUT when total ≥ ${state.target}.`;
+  setText("statusLine", T("statusFmt", state.players.length, inCount, outCount, state.target));
 
   let html = `<table>
-    <thead><tr><th>Player</th><th>Total</th><th>Status</th></tr></thead><tbody>`;
+    <thead><tr><th>${lang==="ar" ? "اللاعب" : "Player"}</th><th>${lang==="ar" ? "المجموع" : "Total"}</th><th>${lang==="ar" ? "الحالة" : "Status"}</th></tr></thead><tbody>`;
 
   state.players.forEach((p,i)=>{
     const isTop = !allEqual && i===top;
@@ -136,88 +359,374 @@ function render(){
     const textClass = p.out ? "outText" : "";
 
     let badge = "";
-    if(!p.out && isTop) badge = `<span class="tag">TOP</span>`;
-    if(!p.out && isLow) badge = `<span class="tag">LOW</span>`;
+    if(!p.out && isTop) badge = `<span class="tag">${T("top")}</span>`;
+    if(!p.out && isLow) badge = `<span class="tag">${T("low")}</span>`;
     if(p.out) badge = `<span class="tag">OUT</span>`;
 
     html += `<tr class="${rowClass}">
       <td class="${textClass}"><b>${escapeHtml(p.name)}</b> ${badge}</td>
       <td class="${textClass}">${p.total}</td>
-      <td class="${textClass}">${p.out ? "OUT (skipped)" : "IN"}</td>
+      <td class="${textClass}">${p.out ? T("out") : T("in")}</td>
     </tr>`;
   });
 
   html += `</tbody></table>`;
   document.getElementById("tableWrap").innerHTML = html;
+
+  renderHistory();
 }
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, m => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[m]));
+}
+
+/* ==========================
+   HISTORY UI
+========================== */
+function renderHistory(){
+  if(!state) return;
+  const body = document.getElementById("histBody");
+  const rounds = state.rounds || [];
+  if(rounds.length === 0){
+    body.innerHTML = `<div class="muted">${T("histEmpty")}</div>`;
+    return;
+  }
+
+  // newest first
+  let out = "";
+  for(let r = rounds.length - 1; r >= 0; r--){
+    const round = rounds[r];
+    const num = r + 1;
+    const t = fmtTime(round.ts);
+
+    out += `<div class="card" style="margin:10px 0">
+      <div class="row" style="justify-content:space-between">
+        <b>${T("round", num)}</b>
+        <span class="muted">${T("at", t)}</span>
+      </div>
+      <div style="margin-top:8px">`;
+
+    round.deltas.forEach((d,i)=>{
+      if(d === 0) return;
+      out += `<div class="row" style="justify-content:space-between">
+        <span>${escapeHtml(state.players[i]?.name ?? ("P"+(i+1)))}</span>
+        <b>${d > 0 ? "+"+d : d}</b>
+      </div>`;
+    });
+
+    out += `</div></div>`;
+  }
+  body.innerHTML = out;
+}
+
+/* ==========================
+   ACTIONS (ROUND / UNDO)
+========================== */
+function applyRound(deltas){
+  // deltas length = players length
+  for(let i=0;i<state.players.length;i++){
+    if(state.players[i].out) continue; // skip OUT
+    state.players[i].total += (deltas[i] || 0);
+  }
+  applyKickouts();
+
+  state.rounds.push({ ts: Date.now(), deltas: deltas.slice(0) });
+  state.lastWriteBy = clientId;
+  state.updatedAt = Date.now();
+
+  saveLocal();
+  syncWrite();
+  render();
+}
+
+function undoLastRound(){
+  const rounds = state.rounds || [];
+  if(rounds.length === 0){
+    alert(T("undoEmpty"));
+    return;
+  }
+  const last = rounds.pop();
+
+  // revert totals (for IN/OUT we just subtract and then re-evaluate OUT)
+  for(let i=0;i<state.players.length;i++){
+    state.players[i].total -= (last.deltas[i] || 0);
+  }
+
+  // re-evaluate OUT based on target
+  for(const p of state.players) p.out = (p.total >= state.target);
+
+  state.lastWriteBy = clientId;
+  state.updatedAt = Date.now();
+
+  saveLocal();
+  syncWrite();
+  render();
+}
+
+/* ==========================
+   LIVE SYNC (Firebase Realtime DB)
+   - Optional: works only if you paste Firebase config below.
+========================== */
+
+// >>> FIREBASE CONFIG HERE <<<
+// 1) Create Firebase project
+// 2) Enable Realtime Database
+// 3) Paste your config object below and set FIREBASE_ENABLED = true
+let FIREBASE_ENABLED = false;
+let firebaseApp = null;
+let firebaseDb = null;
+let fbRef = null;
+
+// Paste like:
+// const firebaseConfig = { apiKey:"...", authDomain:"...", databaseURL:"...", projectId:"...", appId:"..." };
+const firebaseConfig = null;
+
+// Firebase SDK (loaded dynamically to keep it optional)
+async function ensureFirebase(){
+  if(!FIREBASE_ENABLED || !firebaseConfig) return false;
+  if(firebaseApp && firebaseDb) return true;
+
+  // load scripts
+  await loadScript("https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js");
+  await loadScript("https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js");
+
+  firebaseApp = firebase.initializeApp(firebaseConfig);
+  firebaseDb = firebase.database();
+  return true;
+}
+
+function setSyncState(txt){
+  document.getElementById("syncState").textContent = txt;
+}
+
+async function syncConnect(){
+  if(!room){
+    setSyncState(T("local"));
+    return;
+  }
+  const ok = await ensureFirebase();
+  if(!ok){
+    setSyncState(T("local"));
+    return;
+  }
+
+  setSyncState(T("online"));
+  fbRef = firebaseDb.ref("rooms/" + room);
+
+  // listen for updates
+  fbRef.on("value", snap=>{
+    const data = snap.val();
+    if(!data) return;
+
+    // ignore our own immediate echo
+    if(data.lastWriteBy && data.lastWriteBy === clientId) return;
+
+    // accept remote state
+    state = data;
+    // ensure fields
+    if(!Array.isArray(state.rounds)) state.rounds = [];
+    if(!Number.isFinite(state.target) || state.target < 1) state.target = 100;
+
+    saveLocal();
+    render();
+  });
+}
+
+async function syncWrite(){
+  if(!room) return;
+  const ok = await ensureFirebase();
+  if(!ok) return;
+  if(!fbRef) fbRef = firebaseDb.ref("rooms/" + room);
+  try{
+    await fbRef.set(state);
+  }catch(e){
+    // fallback stays local
+  }
+}
+
+function loadScript(src){
+  return new Promise((res, rej)=>{
+    const s = document.createElement("script");
+    s.src = src;
+    s.onload = ()=>res();
+    s.onerror = ()=>rej(new Error("Failed " + src));
+    document.head.appendChild(s);
+  });
+}
+
+/* ==========================
+   EVENTS
+========================== */
+document.getElementById("langBtn").addEventListener("click", ()=>{
+  lang = (lang === "en") ? "ar" : "en";
+  localStorage.setItem(LANG_KEY, lang);
+  applyLang();
+});
+
+document.getElementById("setRoomBtn").addEventListener("click", async ()=>{
+  const v = prompt(T("setRoomMsg"), room || "majlis1");
+  if(v === null) return;
+  const r = (v || "").trim();
+  if(!r){ alert(T("roomEmpty")); return; }
+  room = r;
+  localStorage.setItem(ROOM_KEY, room);
+  setText("roomText", room);
+  setText("roomText2", room);
+
+  // reconnect sync
+  try{
+    if(fbRef) fbRef.off();
+  }catch{}
+  fbRef = null;
+  await syncConnect();
+
+  // write our local state to room if we have one
+  if(state) syncWrite();
+});
+
+document.getElementById("copyLinkBtn").addEventListener("click", async ()=>{
+  const url = new URL(location.href);
+  url.searchParams.set("room", room || "");
+  try{
+    await navigator.clipboard.writeText(url.toString());
+  }catch{
+    // ignore
+  }
+});
 
 document.getElementById("startBtn").addEventListener("click", async ()=>{
   const n = Number(document.getElementById("playerCount").value);
-  if(!(n>=2 && n<=10)) return alert("Players must be between 2 and 10.");
+  if(!(n>=2 && n<=10)) return alert(lang==="ar" ? "العدد لازم بين 2 و 10." : "Players must be between 2 and 10.");
   newGame(n);
   const ok = await promptNames(state.players);
   if(!ok) return;
-  save();
+  saveLocal();
+  await syncConnect();
+  syncWrite();
   render();
 });
 
 document.getElementById("addRoundBtn").addEventListener("click", ()=>{
-  const ins = state.players.map((p,i)=>({p,i})).filter(x=>!x.p.out);
-  if(ins.length===0) return alert("Everyone is OUT. Reset or start a new game.");
+  if(!state) return;
 
-  for(const x of ins){
-    const v = prompt(`Points for ${x.p.name}:`, "0");
-    if(v===null) return;
-    const pts = Number(v) || 0;
-    state.players[x.i].total += pts;
+  const inIdx = state.players.map((p,i)=>({p,i})).filter(x=>!x.p.out);
+  if(inIdx.length===0) return alert(T("noPlayers"));
+
+  const deltas = Array(state.players.length).fill(0);
+
+  for(const x of inIdx){
+    const v = prompt(T("pointsFor", x.p.name), "0");
+    if(v===null) return; // cancel whole round
+    deltas[x.i] = Number(v) || 0;
   }
 
-  applyKickouts();
-  save();
-  render();
+  applyRound(deltas);
+});
+
+document.getElementById("undoBtn").addEventListener("click", ()=>{
+  if(!state) return;
+  undoLastRound();
+});
+
+document.getElementById("historyBtn").addEventListener("click", ()=>{
+  if(!state) return;
+  renderHistory();
+  document.getElementById("historyDlg").showModal();
+});
+
+document.getElementById("closeHistBtn").addEventListener("click", ()=>{
+  document.getElementById("historyDlg").close();
 });
 
 document.getElementById("addPlayerBtn").addEventListener("click", ()=>{
-  if(state.players.length>=10) return alert("Max players is 10.");
-  const name = prompt("New player name:", `Player ${state.players.length+1}`);
+  if(!state) return;
+  if(state.players.length>=10) return alert(T("maxPlayers"));
+
+  const name = prompt(T("newPlayer"), `Player ${state.players.length+1}`);
   if(name===null) return;
-  state.players.push({name: name.trim() || `Player ${state.players.length+1}`, total:0, out:false});
-  save();
+
+  state.players.push({ name: (name.trim()||`Player ${state.players.length+1}`), total:0, out:false });
+
+  // history deltas need to match length => pad older rounds
+  for(const r of state.rounds) r.deltas.push(0);
+
+  state.lastWriteBy = clientId;
+  state.updatedAt = Date.now();
+
+  saveLocal();
+  syncWrite();
   render();
 });
 
 document.getElementById("editNamesBtn").addEventListener("click", async ()=>{
+  if(!state) return;
   const ok = await promptNames(state.players);
   if(!ok) return;
-  save();
+
+  state.lastWriteBy = clientId;
+  state.updatedAt = Date.now();
+
+  saveLocal();
+  syncWrite();
   render();
 });
 
 document.getElementById("targetInput").addEventListener("change", ()=>{
+  if(!state) return;
   let t = Math.floor(Number(document.getElementById("targetInput").value));
   if(!Number.isFinite(t) || t<1) t=1;
   state.target = t;
 
-  // re-evaluate OUT
   for(const p of state.players) p.out = (p.total >= state.target);
 
-  save();
+  state.lastWriteBy = clientId;
+  state.updatedAt = Date.now();
+
+  saveLocal();
+  syncWrite();
   render();
 });
 
 document.getElementById("resetBtn").addEventListener("click", ()=>{
-  if(!confirm("Reset totals to 0 and set everyone IN? (Names stay)")) return;
+  if(!state) return;
+  if(!confirm(T("resetQ"))) return;
+
   for(const p of state.players){ p.total=0; p.out=false; }
-  save();
+  state.rounds = [];
+  state.lastWriteBy = clientId;
+  state.updatedAt = Date.now();
+
+  saveLocal();
+  syncWrite();
   render();
 });
 
-// Boot
-state = load();
-if(state){
-  document.getElementById("appCard").style.display = "";
+/* ==========================
+   BOOT
+========================== */
+(function boot(){
+  // read room from URL ?room=xxx
+  try{
+    const url = new URL(location.href);
+    const qRoom = (url.searchParams.get("room") || "").trim();
+    if(qRoom){
+      room = qRoom;
+      localStorage.setItem(ROOM_KEY, room);
+    }
+  }catch{}
+
+  state = loadLocal();
+
+  applyLang();
+
+  // if we already have a game, connect sync
+  syncConnect();
+
+  // initial render
   render();
-}
+})();
 </script>
 </body>
 </html>
